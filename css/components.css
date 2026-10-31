@@ -1,0 +1,406 @@
+/**
+ * DNS-Based Malicious Domain Blocking and Network Protection System
+ * Reusable Components: Domain Checker, Radar Gauges, Threat Badges, Auth & Modals
+ */
+
+/* ==========================================================================
+   Domain Security Checker Components
+   ========================================================================== */
+.domain-checker-hero {
+  background: linear-gradient(135deg, rgba(13, 23, 45, 0.8) 0%, rgba(7, 12, 25, 0.95) 100%);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 2.25rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.domain-checker-hero::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.checker-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.checker-input-wrapper input {
+  padding-left: 3rem;
+  height: 56px;
+  font-size: 1.1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(5, 9, 18, 0.85);
+  border: 1.5px solid rgba(0, 240, 255, 0.25);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.checker-input-wrapper input:focus {
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);
+}
+
+.checker-input-icon {
+  position: absolute;
+  left: 1.15rem;
+  color: var(--cyan-primary);
+  font-size: 1.25rem;
+}
+
+.quick-test-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.btn-quick-sample {
+  background: rgba(13, 23, 45, 0.5);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.775rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-quick-sample:hover {
+  background: var(--cyan-subtle);
+  border-color: var(--cyan-border);
+  color: var(--cyan-primary);
+}
+
+/* Radar Scan Loader */
+.radar-scanner {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 240, 255, 0.25);
+  position: relative;
+  margin: 1.5rem auto;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(0, 240, 255, 0.1);
+  overflow: hidden;
+}
+
+.radar-scanner::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 1px dashed rgba(0, 240, 255, 0.4);
+}
+
+.radar-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(0, 240, 255, 0.6) 0deg, rgba(0, 240, 255, 0) 60deg);
+  animation: radarSpin 1.8s linear infinite;
+}
+
+.radar-center-blip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cyan-primary);
+  box-shadow: 0 0 10px var(--cyan-primary);
+}
+
+@keyframes radarSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Inspection Result Display Cards */
+.result-card {
+  border-radius: var(--radius-md);
+  padding: 1.75rem 2rem;
+  border: 1px solid var(--border-card);
+  background: rgba(11, 20, 39, 0.85);
+  backdrop-filter: blur(20px);
+  animation: fadeInResult 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.result-card.result-safe {
+  border-color: var(--color-safe-border);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.12);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(11, 20, 39, 0.9) 100%);
+}
+
+.result-card.result-malicious {
+  border-color: var(--color-malicious-border);
+  box-shadow: 0 8px 32px rgba(255, 51, 102, 0.18);
+  background: linear-gradient(180deg, rgba(255, 51, 102, 0.1) 0%, rgba(11, 20, 39, 0.9) 100%);
+}
+
+.result-card.result-suspicious {
+  border-color: var(--color-suspicious-border);
+  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.15);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(11, 20, 39, 0.9) 100%);
+}
+
+@keyframes fadeInResult {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.verdict-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 1.25rem;
+}
+
+.verdict-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.85rem;
+  flex-shrink: 0;
+}
+
+.result-safe .verdict-icon-box {
+  background: var(--color-safe-bg);
+  color: var(--color-safe);
+  border: 1px solid var(--color-safe-border);
+  box-shadow: 0 0 20px var(--color-safe-glow);
+}
+
+.result-malicious .verdict-icon-box {
+  background: var(--color-malicious-bg);
+  color: var(--color-malicious);
+  border: 1px solid var(--color-malicious-border);
+  box-shadow: 0 0 20px var(--color-malicious-glow);
+}
+
+.result-suspicious .verdict-icon-box {
+  background: var(--color-suspicious-bg);
+  color: var(--color-suspicious);
+  border: 1px solid var(--color-suspicious-border);
+  box-shadow: 0 0 20px var(--color-suspicious-glow);
+}
+
+.score-meter-box {
+  text-align: center;
+  padding: 1.2rem;
+  border-radius: var(--radius-sm);
+  background: rgba(5, 8, 17, 0.6);
+  border: 1px solid var(--border-subtle);
+}
+
+.score-meter-num {
+  font-size: 2.25rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1;
+}
+
+/* ==========================================================================
+   Threat Severity Badges & Indicators
+   ========================================================================== */
+.threat-level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.threat-critical, .threat-high {
+  background: rgba(255, 51, 102, 0.15);
+  color: #ff3366;
+  border: 1px solid rgba(255, 51, 102, 0.4);
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.2);
+}
+
+.threat-medium {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.threat-low {
+  background: rgba(234, 179, 8, 0.12);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+/* ==========================================================================
+   Live DNS Query Flash Row
+   ========================================================================== */
+.table-cyber tr.row-new {
+  animation: flashHighlight 1.5s ease-out;
+}
+
+@keyframes flashHighlight {
+  0% { background: rgba(0, 240, 255, 0.25); }
+  100% { background: transparent; }
+}
+
+/* ==========================================================================
+   Authentication Pages Styles
+   ========================================================================== */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  position: relative;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  z-index: 2;
+}
+
+.auth-card {
+  background: rgba(11, 20, 39, 0.88);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2.25rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--blue-primary), var(--cyan-primary), var(--teal-accent));
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 119, 255, 0.2));
+  border: 1px solid var(--cyan-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan-primary);
+  font-size: 1.85rem;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+  margin-bottom: 1rem;
+}
+
+.auth-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 0.35rem;
+}
+
+.auth-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.password-strength-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.password-strength-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.auth-demo-box {
+  background: rgba(0, 240, 255, 0.05);
+  border: 1px dashed var(--cyan-border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem;
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   Cyber Modals
+   ========================================================================== */
+.modal-content-cyber {
+  background: rgba(11, 20, 39, 0.96);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 240, 255, 0.18);
+  color: var(--text-main);
+}
+
+.modal-header-cyber {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-footer-cyber {
+  padding: 1.1rem 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(6, 11, 23, 0.6);
+}
+
+.btn-close-cyber {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.btn-close-cyber:hover {
+  color: var(--cyan-primary);
+}
+

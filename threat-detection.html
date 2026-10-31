@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Threat Detection &mdash; AegisDNS Network Protection</title>
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'/></svg>">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="css/cyber-theme.css">
+  <link rel="stylesheet" href="css/dashboard-layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="appSidebar" class="sidebar">
+      <div class="sidebar-header">
+        <a href="dashboard.html" class="sidebar-brand">
+          <div class="sidebar-brand-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="sidebar-brand-text">Aegis<span class="text-cyan">DNS</span></div>
+            <div class="sidebar-brand-sub">Network Shield</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="sidebar-nav-container">
+        <div class="sidebar-nav-title">Operations Console</div>
+        <ul class="sidebar-nav-list">
+          <li class="sidebar-nav-item">
+            <a href="dashboard.html" class="nav-link">
+              <i class="fa-solid fa-gauge-high nav-icon"></i>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="domain-checker.html" class="nav-link">
+              <i class="fa-solid fa-shield-virus nav-icon"></i>
+              <span class="nav-text">Domain Checker</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="dns-monitoring.html" class="nav-link">
+              <i class="fa-solid fa-network-wired nav-icon"></i>
+              <span class="nav-text">DNS Monitoring</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="threat-detection.html" class="nav-link active">
+              <i class="fa-solid fa-triangle-exclamation nav-icon"></i>
+              <span class="nav-text">Threat Detection</span>
+              <span class="sidebar-badge badge-malicious">8 Active</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="blocked-domains.html" class="nav-link">
+              <i class="fa-solid fa-ban nav-icon"></i>
+              <span class="nav-text">Blocked Domains</span>
+              <span class="sidebar-badge badge-info">Sinkhole</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="activity-logs.html" class="nav-link">
+              <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+              <span class="nav-text">Activity Logs</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="sidebar-nav-title mt-4">Configuration</div>
+        <ul class="sidebar-nav-list">
+          <li class="sidebar-nav-item">
+            <a href="settings.html" class="nav-link">
+              <i class="fa-solid fa-gear nav-icon"></i>
+              <span class="nav-text">Settings</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="#" class="nav-link action-logout text-danger">
+              <i class="fa-solid fa-right-from-bracket nav-icon text-danger"></i>
+              <span class="nav-text">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="protection-mini-card">
+          <div class="protection-mini-status">
+            <span class="protection-mini-label">SINKHOLE STATUS</span>
+            <span id="sidebarProtectionPulse" class="status-pulse pulse-safe"></span>
+          </div>
+          <div id="sidebarProtectionStatus" class="fw-bold text-safe font-mono" style="font-size: 0.8rem;">
+            SHIELD ACTIVE
+          </div>
+          <div class="protection-mini-metrics mt-1">
+            <span>Upstream: 1.1.1.1</span>
+            <span class="text-cyan font-mono">14ms</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+      
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="sidebarToggleBtn" class="btn-sidebar-toggle" title="Toggle Sidebar">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          
+          <div id="protectionStatusTicker" class="topbar-status-ticker d-none d-md-flex">
+            <span class="status-pulse pulse-safe"></span>
+            <span class="text-safe fw-semibold">PROTECTED</span>
+            <span class="text-dim">|</span>
+            <span class="text-muted font-mono">14ms latency</span>
+            <span class="text-dim">|</span>
+            <span class="text-cyan font-mono">DNS Sinkhole ACTIVE</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div id="protectionQuickToggle" class="protection-quick-toggle" title="Toggle Network Protection">
+            <span class="status-pulse pulse-safe"></span>
+            <span class="toggle-label text-safe">PROTECTED</span>
+          </div>
+
+          <div class="dropdown">
+            <button class="topbar-action-btn" type="button" id="notifDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-regular fa-bell"></i>
+              <span id="notificationBadge" class="btn-badge">3</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end cyber-dropdown-menu" style="width: 320px;">
+              <div class="cyber-dropdown-header">
+                <span class="fw-bold text-bright" style="font-size: 0.85rem;"><i class="fa-solid fa-shield-virus text-cyan me-1"></i> Security Alerts</span>
+                <a href="#" id="clearNotificationsBtn" class="text-cyan text-decoration-none" style="font-size: 0.75rem;">Clear All</a>
+              </div>
+              <div id="notificationList">
+                <a href="threat-detection.html" class="cyber-dropdown-item">
+                  <span class="status-pulse pulse-malicious mt-1"></span>
+                  <div>
+                    <div class="fw-semibold text-bright" style="font-size: 0.82rem;">Malicious C2 Domain Blocked</div>
+                    <div class="text-dim font-mono" style="font-size: 0.75rem;">c2-trojan-controller-sync.net &rarr; 0.0.0.0</div>
+                    <div class="text-dim" style="font-size: 0.7rem;">2 minutes ago</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="dropdown">
+            <button class="user-profile-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="user-avatar-circle profile-avatar-text">SA</div>
+              <div class="d-none d-lg-block text-start">
+                <div class="profile-user-name fw-bold" style="font-size: 0.82rem; line-height: 1.1;">SecOps Admin</div>
+                <div class="profile-user-role text-cyan" style="font-size: 0.68rem;">Security Lead</div>
+              </div>
+              <i class="fa-solid fa-chevron-down text-dim ms-1" style="font-size: 0.7rem;"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end cyber-dropdown-menu">
+              <a class="cyber-dropdown-item" href="settings.html"><i class="fa-solid fa-user-gear text-cyan"></i> Account Settings</a>
+              <div class="dropdown-divider border-subtle"></div>
+              <a class="cyber-dropdown-item text-danger action-logout" href="#"><i class="fa-solid fa-right-from-bracket text-danger"></i> Sign Out</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="content-area">
+        
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">
+              <i class="fa-solid fa-triangle-exclamation text-malicious"></i> Threat Detection &amp; Intelligence
+            </h1>
+            <p class="page-subtitle">Granular analysis of detected phishing vectors, botnet beacons, and heuristic anomalies</p>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <span class="cyber-badge badge-safe">
+              <i class="fa-solid fa-satellite-dish me-1"></i> Threat Feeds: Online
+            </span>
+          </div>
+        </div>
+
+        <!-- Threat Summary Cards (5 Metrics as requested) -->
+        <div class="row g-3 mb-4">
+          
+          <!-- 1. Total Detected Threats -->
+          <div class="col-sm-6 col-lg">
+            <div class="cyber-card stat-card stat-danger h-100">
+              <div class="cyber-card-body">
+                <div class="stat-card-icon mb-2">
+                  <i class="fa-solid fa-shield-virus"></i>
+                </div>
+                <div class="stat-label">Total Detected Threats</div>
+                <div id="metricTotalThreats" class="stat-value text-malicious">0</div>
+                <div class="stat-meta text-dim">Aggregated signatures</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Phishing Domains -->
+          <div class="col-sm-6 col-lg">
+            <div class="cyber-card stat-card stat-danger h-100">
+              <div class="cyber-card-body">
+                <div class="stat-card-icon mb-2" style="background: rgba(255, 51, 102, 0.15); color: #ff3366;">
+                  <i class="fa-solid fa-fish"></i>
+                </div>
+                <div class="stat-label">Phishing Domains</div>
+                <div id="metricPhishing" class="stat-value text-bright">0</div>
+                <div class="stat-meta text-dim">Credential theft pages</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Malware Domains -->
+          <div class="col-sm-6 col-lg">
+            <div class="cyber-card stat-card stat-warning h-100">
+              <div class="cyber-card-body">
+                <div class="stat-card-icon mb-2" style="background: rgba(255, 123, 0, 0.15); color: #ff7b00;">
+                  <i class="fa-solid fa-bug"></i>
+                </div>
+                <div class="stat-label">Malware C2 Domains</div>
+                <div id="metricMalware" class="stat-value text-bright">0</div>
+                <div class="stat-meta text-dim">Botnet beacon relays</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Suspicious Domains -->
+          <div class="col-sm-6 col-lg">
+            <div class="cyber-card stat-card stat-warning h-100">
+              <div class="cyber-card-body">
+                <div class="stat-card-icon mb-2">
+                  <i class="fa-solid fa-brain"></i>
+                </div>
+                <div class="stat-label">Suspicious / DGA</div>
+                <div id="metricSuspicious" class="stat-value text-suspicious">0</div>
+                <div class="stat-meta text-dim">Entropy / Heuristic flags</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Blocked Domains -->
+          <div class="col-sm-6 col-lg">
+            <div class="cyber-card stat-card stat-cyan h-100">
+              <div class="cyber-card-body">
+                <div class="stat-card-icon mb-2">
+                  <i class="fa-solid fa-ban"></i>
+                </div>
+                <div class="stat-label">Blocked Domains</div>
+                <div id="metricBlockedThreats" class="stat-value text-cyan">0</div>
+                <div class="stat-meta text-dim">Enforced by Sinkhole</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Severity Distribution Chart & Threat Severity Legend -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-8">
+            <div class="cyber-card h-100">
+              <div class="cyber-card-header">
+                <div>
+                  <h3 class="fw-bold mb-0 text-bright" style="font-size: 1.05rem;">
+                    <i class="fa-solid fa-chart-column text-cyan me-2"></i> Threat Severity Distribution
+                  </h3>
+                  <div class="text-dim" style="font-size: 0.75rem;">Active signatures classified by threat impact rating</div>
+                </div>
+              </div>
+              <div class="cyber-card-body" style="height: 280px;">
+                <canvas id="threatSeverityChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="cyber-card h-100">
+              <div class="cyber-card-header">
+                <h3 class="fw-bold mb-0 text-bright" style="font-size: 1.05rem;">
+                  <i class="fa-solid fa-shield-halved text-cyan me-2"></i> Severity Indicator Key
+                </h3>
+              </div>
+              <div class="cyber-card-body d-flex flex-column justify-content-around">
+                <div class="p-2 rounded mb-2" style="background: rgba(255, 51, 102, 0.1); border: 1px solid var(--color-malicious-border);">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="threat-level-badge threat-critical"><i class="fa-solid fa-skull-crossbones"></i> CRITICAL</span>
+                    <span class="text-malicious font-mono fw-bold" style="font-size: 0.8rem;">Score 90-100</span>
+                  </div>
+                  <div class="text-dim mt-1" style="font-size: 0.75rem;">Active Ransomware, Cobalt Strike C2, Confirmed Phishing</div>
+                </div>
+
+                <div class="p-2 rounded mb-2" style="background: rgba(255, 123, 0, 0.1); border: 1px solid rgba(255, 123, 0, 0.4);">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="threat-level-badge threat-high"><i class="fa-solid fa-radiation"></i> HIGH</span>
+                    <span class="text-bright font-mono fw-bold" style="font-size: 0.8rem;">Score 75-89</span>
+                  </div>
+                  <div class="text-dim mt-1" style="font-size: 0.75rem;">Malware staging dropper, high-confidence abuse report</div>
+                </div>
+
+                <div class="p-2 rounded mb-2" style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--color-suspicious-border);">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="threat-level-badge threat-medium"><i class="fa-solid fa-triangle-exclamation"></i> MEDIUM</span>
+                    <span class="text-suspicious font-mono fw-bold" style="font-size: 0.8rem;">Score 50-74</span>
+                  </div>
+                  <div class="text-dim mt-1" style="font-size: 0.75rem;">DGA domain, high entropy lexical structure, new unrated TLD</div>
+                </div>
+
+                <div class="p-2 rounded" style="background: rgba(234, 179, 8, 0.08); border: 1px solid rgba(234, 179, 8, 0.3);">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="threat-level-badge threat-low"><i class="fa-solid fa-circle-exclamation"></i> LOW RISK</span>
+                    <span class="text-dim font-mono fw-bold" style="font-size: 0.8rem;">Score 25-49</span>
+                  </div>
+                  <div class="text-dim mt-1" style="font-size: 0.75rem;">Adware tracking scripts, telemetry analytics probe</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Detected Threats Table -->
+        <div class="cyber-card">
+          <div class="cyber-card-header">
+            <div>
+              <h3 class="fw-bold mb-0 text-bright" style="font-size: 1.05rem;">
+                <i class="fa-solid fa-bug text-cyan me-2"></i> Recent Detected Threats Table
+              </h3>
+              <div class="text-dim" style="font-size: 0.75rem;">Detailed security incidents flagged by heuristic engines and threat feeds</div>
+            </div>
+            
+            <!-- Table Search & Filter Controls -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <input type="text" id="threatSearchInput" class="form-control form-control-cyber" placeholder="Search domain, IOC, client..." style="max-width: 230px; font-size: 0.82rem;">
+              <select id="threatSeverityFilter" class="form-select form-select-cyber" style="width: auto; font-size: 0.82rem;">
+                <option value="ALL">All Severities</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-cyber">
+              <thead>
+                <tr>
+                  <th>Incident ID</th>
+                  <th>Domain &amp; Threat Intel Source</th>
+                  <th>Threat Category</th>
+                  <th>Severity Indicator</th>
+                  <th>Detection Timestamp</th>
+                  <th>Action Taken</th>
+                  <th>IOC Forensics</th>
+                </tr>
+              </thead>
+              <tbody id="threatsTableBody">
+                <!-- Populated via threat-detection.js -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="cyber-card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-dim" style="font-size: 0.75rem;">
+              <i class="fa-solid fa-circle-info text-cyan me-1"></i> Click "Inspect" to view Indicator of Compromise (IOC) details and host forensics.
+            </div>
+            <div class="text-dim font-mono" style="font-size: 0.75rem;">
+              Database: AlienVault OTX, URLhaus, AbuseIPDB, AegisHeuristic
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Detailed Threat Forensics Modal -->
+  <div class="modal fade" id="threatDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content modal-content-cyber">
+        <div class="modal-header modal-header-cyber">
+          <h5 class="modal-title fw-bold" id="threatModalTitle">Threat Analysis</h5>
+          <button type="button" class="btn-close-cyber" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-body p-4" id="threatModalBody">
+          <!-- Populated dynamically via threat-detection.js -->
+        </div>
+        <div class="modal-footer modal-footer-cyber">
+          <button type="button" class="btn-cyber-secondary btn-cyber-sm" data-bs-dismiss="modal">Close</button>
+          <a href="blocked-domains.html" class="btn-cyber-primary btn-cyber-sm">
+            <i class="fa-solid fa-ban me-1"></i> Manage in Blocklist
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/mock-data.js"></script>
+  <script src="js/api-service.js"></script>
+  <script src="js/cyber-ui.js"></script>
+  <script src="js/charts-config.js"></script>
+  <script src="js/threat-detection.js"></script>
+</body>
+</html>
+
