@@ -260,6 +260,13 @@ def seed_initial_data(app: Flask):
     except Exception as e:
         logger.warning(f"Could not seed Digital Twin scenarios: {e}")
 
+    # 9. Seed Attack Replay & Forensics Incident Records
+    try:
+        from services.forensics_service import ForensicsService
+        ForensicsService.seed_default_incidents()
+    except Exception as e:
+        logger.warning(f"Could not seed Forensic Incidents: {e}")
+
     db.session.commit()
     logger.info("Database seeding completed.")
 

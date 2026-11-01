@@ -10,6 +10,7 @@ from models.threat import ThreatDetection
 from models.activity import ActivityLog
 from models.setting import SystemSetting
 from models.digital_twin import VirtualPolicy, SimulationScenario, SimulationRun, SimulationItem
+from models.forensics import SecurityIncident, CounterfactualAnalysis
 
 __all__ = [
     'User',
@@ -24,5 +25,7 @@ __all__ = [
     'VirtualPolicy',
     'SimulationScenario',
     'SimulationRun',
-    'SimulationItem'
+    'SimulationItem',
+    'SecurityIncident',
+    'CounterfactualAnalysis'
 ]

@@ -244,3 +244,50 @@ CREATE TABLE IF NOT EXISTS `simulation_items` (
     INDEX `idx_sim_item_type` (`classification_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 14. Security Incidents Table (Historical Attack Timelines & Campaigns)
+CREATE TABLE IF NOT EXISTS `security_incidents` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `incident_code` VARCHAR(50) NOT NULL UNIQUE,
+    `title` VARCHAR(200) NOT NULL,
+    `threat_actor` VARCHAR(120) NOT NULL DEFAULT 'Unknown Threat Actor',
+    `severity` VARCHAR(30) NOT NULL DEFAULT 'CRITICAL',
+    `attack_vector` VARCHAR(150) NOT NULL,
+    `target_system` VARCHAR(150) NOT NULL,
+    `attack_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `original_outcome` VARCHAR(80) NOT NULL,
+    `dwell_time_minutes` INT NOT NULL DEFAULT 45,
+    `total_events` INT NOT NULL DEFAULT 0,
+    `summary` TEXT NOT NULL,
+    `impact_details` TEXT NULL,
+    `timeline_events_json` LONGTEXT NOT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_incident_code` (`incident_code`),
+    INDEX `idx_incident_severity` (`severity`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 15. Counterfactual Analyses Table (Policy "What-If" Interception Telemetry)
+CREATE TABLE IF NOT EXISTS `counterfactual_analyses` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `analysis_uuid` VARCHAR(64) NOT NULL UNIQUE,
+    `incident_id` INT NOT NULL,
+    `policy_id` INT NULL,
+    `policy_name` VARCHAR(150) NOT NULL,
+    `original_containment_step` INT NULL,
+    `counterfactual_containment_step` INT NULL,
+    `steps_accelerated` INT NOT NULL DEFAULT 0,
+    `time_saved_minutes` FLOAT NOT NULL DEFAULT 0.0,
+    `dwell_time_reduction_pct` FLOAT NOT NULL DEFAULT 0.0,
+    `breach_prevented` BOOLEAN NOT NULL DEFAULT FALSE,
+    `counterfactual_verdict` VARCHAR(80) NOT NULL,
+    `damage_mitigation_score` FLOAT NOT NULL DEFAULT 0.0,
+    `step_comparisons_json` LONGTEXT NOT NULL,
+    `recommendations_json` TEXT NULL,
+    `user_id` INT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`incident_id`) REFERENCES `security_incidents`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`policy_id`) REFERENCES `virtual_policies`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL,
+    INDEX `idx_cf_analysis_uuid` (`analysis_uuid`),
+    INDEX `idx_cf_analysis_incident` (`incident_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
