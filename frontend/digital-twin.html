@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Policy Digital Twin &mdash; AegisDNS Network Protection</title>
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'/></svg>">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="css/cyber-theme.css">
+  <link rel="stylesheet" href="css/dashboard-layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Mobile Backdrop -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+    <!-- Collapsible Sidebar -->
+    <aside id="appSidebar" class="sidebar">
+      <div class="sidebar-header">
+        <a href="dashboard.html" class="sidebar-brand">
+          <div class="sidebar-brand-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="sidebar-brand-text">Aegis<span class="text-cyan">DNS</span></div>
+            <div class="sidebar-brand-sub">Network Shield</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="sidebar-nav-container">
+        <div class="sidebar-nav-title">Operations Console</div>
+        <ul class="sidebar-nav-list">
+          <li class="sidebar-nav-item">
+            <a href="dashboard.html" class="nav-link">
+              <i class="fa-solid fa-gauge-high nav-icon"></i>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="domain-checker.html" class="nav-link">
+              <i class="fa-solid fa-shield-virus nav-icon"></i>
+              <span class="nav-text">Domain Checker</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="dns-monitoring.html" class="nav-link">
+              <i class="fa-solid fa-network-wired nav-icon"></i>
+              <span class="nav-text">DNS Monitoring</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="threat-detection.html" class="nav-link">
+              <i class="fa-solid fa-triangle-exclamation nav-icon"></i>
+              <span class="nav-text">Threat Detection</span>
+              <span class="sidebar-badge badge-malicious">8 Active</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="blocked-domains.html" class="nav-link">
+              <i class="fa-solid fa-ban nav-icon"></i>
+              <span class="nav-text">Blocked Domains</span>
+              <span class="sidebar-badge badge-info">Sinkhole</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="activity-logs.html" class="nav-link">
+              <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+              <span class="nav-text">Activity Logs</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="digital-twin.html" class="nav-link active">
+              <i class="fa-solid fa-brain nav-icon"></i>
+              <span class="nav-text">Policy Digital Twin</span>
+              <span class="sidebar-badge badge-info">AI Sim</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="sidebar-nav-title mt-4">Configuration</div>
+        <ul class="sidebar-nav-list">
+          <li class="sidebar-nav-item">
+            <a href="settings.html" class="nav-link">
+              <i class="fa-solid fa-gear nav-icon"></i>
+              <span class="nav-text">Settings</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="#" class="nav-link action-logout text-danger">
+              <i class="fa-solid fa-right-from-bracket nav-icon text-danger"></i>
+              <span class="nav-text">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Sidebar Status Mini-Card -->
+      <div class="sidebar-footer">
+        <div class="protection-mini-card">
+          <div class="protection-mini-status">
+            <span class="protection-mini-label">TWIN SANDBOX</span>
+            <span class="status-pulse pulse-safe"></span>
+          </div>
+          <div class="fw-bold text-cyan font-mono" style="font-size: 0.8rem;">
+            ISOLATED REPLICA
+          </div>
+          <div class="protection-mini-metrics mt-1">
+            <span>Live System: Safe</span>
+            <span class="text-safe font-mono">0.00ms Live Impact</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      
+      <!-- Topbar Header -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="sidebarToggleBtn" class="btn-sidebar-toggle" title="Toggle Sidebar">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          
+          <div class="topbar-status-ticker d-none d-md-flex">
+            <span class="status-pulse pulse-safe"></span>
+            <span class="text-cyan fw-semibold">DIGITAL TWIN ENGINE</span>
+            <span class="text-dim">|</span>
+            <span class="text-muted font-mono">Virtual Policy Sandbox</span>
+            <span class="text-dim">|</span>
+            <span class="text-safe font-mono">RFC-1035 Zero Mutation</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Quick Protection Toggle Pill -->
+          <div id="protectionQuickToggle" class="protection-quick-toggle" title="Toggle Network Protection">
+            <span class="status-pulse pulse-safe"></span>
+            <span class="toggle-label text-safe">PROTECTED</span>
+          </div>
+
+          <div class="dropdown">
+            <div class="user-profile-menu dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="user-avatar">
+                <i class="fa-solid fa-user-shield"></i>
+              </div>
+              <div class="d-none d-sm-block text-start">
+                <div id="topbarUserName" class="user-name">SecOps Lead</div>
+                <div class="user-role">Administrator</div>
+              </div>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+              <li><a class="dropdown-item" href="settings.html"><i class="fa-solid fa-gear me-2 text-cyan"></i> System Settings</a></li>
+              <li><a class="dropdown-item" href="digital-twin.html"><i class="fa-solid fa-brain me-2 text-purple"></i> Policy Digital Twin</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger action-logout" href="#"><i class="fa-solid fa-right-from-bracket me-2"></i> Terminate Session</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Body Content -->
+      <main class="page-content">
+        
+        <!-- Page Header Breadcrumbs & Actions -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+          <div>
+            <div class="text-dim font-mono text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.1em;">
+              AegisDNS Advanced AI &bull; Security Architecture
+            </div>
+            <h1 class="page-title d-flex align-items-center gap-2">
+              <i class="fa-solid fa-brain text-cyan"></i>
+              AI DNS Security Policy Simulation (Digital Twin)
+              <span class="badge badge-info ms-2" style="font-size: 0.72rem; vertical-align: middle;">SANDBOX ISOLATED</span>
+            </h1>
+            <p class="text-muted mb-0" style="font-size: 0.9rem; max-width: 900px;">
+              Formulate virtual DNS protection policies, stress-test candidate rules against advanced attack vectors (Phishing, DGA, C2, Fast-Flux), evaluate confusion matrices, and receive automated heuristic recommendations before live network deployment.
+            </p>
+          </div>
+          
+          <div class="d-flex align-items-center gap-2">
+            <button id="btnOpenCreatePolicyModal" class="btn btn-outline-cyan btn-sm">
+              <i class="fa-solid fa-plus me-1"></i> New Virtual Policy
+            </button>
+            <button id="btnQuickRunBaseline" class="btn btn-cyan btn-sm">
+              <i class="fa-solid fa-play me-1"></i> Quick Benchmark
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Virtual Policies</span>
+                <div class="stat-card-icon icon-cyan">
+                  <i class="fa-solid fa-sliders"></i>
+                </div>
+              </div>
+              <div id="statVirtualPoliciesCount" class="stat-card-value font-mono">--</div>
+              <div class="stat-card-footer text-muted">
+                <span>1 Production Baseline</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Attack Scenarios</span>
+                <div class="stat-card-icon icon-purple">
+                  <i class="fa-solid fa-virus-covid"></i>
+                </div>
+              </div>
+              <div id="statScenariosCount" class="stat-card-value font-mono">--</div>
+              <div class="stat-card-footer text-muted">
+                <span>Phishing &bull; DGA &bull; Enterprise</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Peak Effectiveness</span>
+                <div class="stat-card-icon icon-safe">
+                  <i class="fa-solid fa-chart-line"></i>
+                </div>
+              </div>
+              <div id="statOptimalPES" class="stat-card-value text-safe font-mono">--%</div>
+              <div class="stat-card-footer text-safe">
+                <i class="fa-solid fa-arrow-trend-up me-1"></i> 0% False Positive Barrier
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Virtual Queries Evaluated</span>
+                <div class="stat-card-icon icon-malicious">
+                  <i class="fa-solid fa-microchip"></i>
+                </div>
+              </div>
+              <div id="statTotalSimulatedQueries" class="stat-card-value font-mono">--</div>
+              <div class="stat-card-footer text-dim">
+                <span>100% Isolated Sandbox</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Tabbed Navigation -->
+        <div class="cyber-tabs-wrapper mb-4">
+          <ul class="nav nav-tabs cyber-nav-tabs" id="digitalTwinTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tab-console-btn" data-bs-toggle="tab" data-bs-target="#tab-console" type="button" role="tab">
+                <i class="fa-solid fa-terminal me-2"></i> Simulation Console
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-results-btn" data-bs-toggle="tab" data-bs-target="#tab-results" type="button" role="tab">
+                <i class="fa-solid fa-square-poll-vertical me-2"></i> Results & Forensics
+                <span id="tabResultsBadge" class="badge badge-info ms-1 d-none">New</span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-studio-btn" data-bs-toggle="tab" data-bs-target="#tab-studio" type="button" role="tab">
+                <i class="fa-solid fa-sliders me-2"></i> Policy Studio
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-comparator-btn" data-bs-toggle="tab" data-bs-target="#tab-comparator" type="button" role="tab">
+                <i class="fa-solid fa-code-compare me-2"></i> Policy Comparator (A/B)
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-reports-btn" data-bs-toggle="tab" data-bs-target="#tab-reports" type="button" role="tab">
+                <i class="fa-solid fa-file-shield me-2"></i> Run History & Reports
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tab Content Panes -->
+        <div class="tab-content" id="digitalTwinTabContent">
+          
+          <!-- ================================================================
+               TAB 1: SIMULATION CONSOLE
+               ================================================================ -->
+          <div class="tab-pane fade show active" id="tab-console" role="tabpanel">
+            <div class="row g-4">
+              <!-- Left Column: Scenario & Policy Selection -->
+              <div class="col-12 col-xl-7">
+                
+                <!-- Scenario Picker Card -->
+                <div class="cyber-card mb-4">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <h2 class="cyber-card-title mb-0">1. Select DNS Attack Scenario</h2>
+                      <div class="cyber-card-subtitle">Choose realistic attack vectors and labeled traffic datasets to simulate</div>
+                    </div>
+                    <span class="badge badge-info">Ground Truth Enabled</span>
+                  </div>
+
+                  <div class="cyber-card-body">
+                    <div id="scenariosContainer" class="d-flex flex-column gap-3">
+                      <!-- Rendered dynamically via digital-twin.js -->
+                      <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-spinner fa-spin me-2"></i> Loading attack scenarios...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Policy Target Card -->
+                <div class="cyber-card">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <h2 class="cyber-card-title mb-0">2. Select Virtual Security Policy</h2>
+                      <div class="cyber-card-subtitle">Test how this candidate policy behaves against the chosen scenario</div>
+                    </div>
+                    <button id="btnQuickCloneFromConsole" class="btn btn-outline-cyan btn-sm">
+                      <i class="fa-solid fa-copy me-1"></i> Clone to Tweak
+                    </button>
+                  </div>
+
+                  <div class="cyber-card-body">
+                    <div class="mb-3">
+                      <label class="form-label text-muted" for="selectVirtualPolicy">Virtual Policy Candidate</label>
+                      <select id="selectVirtualPolicy" class="form-select cyber-input font-mono">
+                        <!-- Populated dynamically -->
+                      </select>
+                    </div>
+
+                    <!-- Policy Parameters Quick Preview Grid -->
+                    <div id="policyQuickPreview" class="p-3 rounded-2" style="background: rgba(6, 11, 23, 0.6); border: 1px solid var(--border-subtle);">
+                      <div class="row g-2 font-mono" style="font-size: 0.8rem;">
+                        <div class="col-6 col-md-3">
+                          <span class="text-dim">Entropy Cutoff:</span>
+                          <span id="previewEntropy" class="text-cyan fw-bold ms-1">3.90</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                          <span class="text-dim">DGA Mode:</span>
+                          <span id="previewDgaMode" class="text-safe fw-bold ms-1">Balanced</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                          <span class="text-dim">Heuristic Multiplier:</span>
+                          <span id="previewWeight" class="text-cyan fw-bold ms-1">1.0x</span>
+                        </div>
+                        <div class="col-6 col-md-3">
+                          <span class="text-dim">Action (Malicious):</span>
+                          <span id="previewActionMal" class="text-malicious fw-bold ms-1">SINKHOLE</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Launch Control & Terminal Stream -->
+              <div class="col-12 col-xl-5">
+                <div class="cyber-card h-100 d-flex flex-column">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <h2 class="cyber-card-title mb-0">Simulation Execution</h2>
+                    <span id="simExecutionBadge" class="badge badge-info font-mono">READY</span>
+                  </div>
+
+                  <div class="cyber-card-body d-flex flex-column">
+                    <p class="text-muted" style="font-size: 0.85rem;">
+                      The Digital Twin executes synthetic domain queries in an isolated thread. It analyzes Shannon entropy, checks TLD policies, evaluates typosquatting heuristics, and scores classification accuracy against ground-truth datasets.
+                    </p>
+
+                    <!-- Big Neon Launch Button -->
+                    <div class="my-3 text-center">
+                      <button id="btnLaunchSimulation" class="btn btn-cyan btn-lg w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                        <i class="fa-solid fa-microchip fa-lg"></i>
+                        <span id="btnLaunchText" class="fw-bold">Launch Digital Twin Simulation</span>
+                      </button>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div id="simProgressWrapper" class="mb-3 d-none">
+                      <div class="d-flex justify-content-between font-mono text-dim mb-1" style="font-size: 0.75rem;">
+                        <span id="simProgressStatus">Simulating DNS traffic...</span>
+                        <span id="simProgressPercent">0%</span>
+                      </div>
+                      <div class="progress" style="height: 6px; background: rgba(0, 240, 255, 0.1);">
+                        <div id="simProgressBar" class="progress-bar bg-cyan" style="width: 0%; transition: width 0.15s linear;"></div>
+                      </div>
+                    </div>
+
+                    <!-- Terminal Output Window -->
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="font-mono text-dim" style="font-size: 0.75rem;">DIGITAL_TWIN_SANDBOX_STREAM</span>
+                      <button id="btnClearTerminal" class="btn btn-link text-dim p-0 font-mono" style="font-size: 0.75rem; text-decoration: none;">Clear</button>
+                    </div>
+                    <div id="simTerminal" class="sim-terminal flex-grow-1">
+                      <div class="sim-terminal-line"><span class="sim-terminal-prompt">&gt;</span>AegisDNS Policy Digital Twin initialized.</div>
+                      <div class="sim-terminal-line"><span class="sim-terminal-prompt">&gt;</span>RFC-1035 Packet Synthesizer sandbox standby.</div>
+                      <div class="sim-terminal-line"><span class="sim-terminal-prompt">&gt;</span>Select scenario and virtual policy to begin evaluation.</div>
+                    </div>
+
+                  </div>
+
+                  <div class="cyber-card-footer d-flex justify-content-between align-items-center">
+                    <span class="text-dim font-mono" style="font-size: 0.75rem;">
+                      <i class="fa-solid fa-lock text-safe me-1"></i> Isolated Virtual Environment
+                    </span>
+                    <button id="btnJumpToResults" class="btn btn-outline-cyan btn-sm d-none">
+                      View Results <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               TAB 2: RESULTS & FORENSICS
+               ================================================================ -->
+          <div class="tab-pane fade" id="tab-results" role="tabpanel">
+            
+            <!-- Quick Alert / Run Banner -->
+            <div id="runOverviewBanner" class="alert alert-cyber alert-info d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-check text-safe fa-lg"></i>
+                <div>
+                  <strong id="bannerRunTitle">Simulation Run Completed</strong> &mdash; 
+                  <span id="bannerRunSubtitle" class="text-muted">Evaluated against Phishing Campaign Surge</span>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2 font-mono">
+                <span id="bannerRunId" class="badge badge-info">SIM-RUN</span>
+                <button id="btnExportRunJson" class="btn btn-outline-cyan btn-sm">
+                  <i class="fa-solid fa-file-export me-1"></i> Export Report
+                </button>
+              </div>
+            </div>
+
+            <!-- Confusion Matrix & Effectiveness Metrics Grid -->
+            <div class="row g-4 mb-4">
+              <!-- Confusion Matrix Card -->
+              <div class="col-12 col-xl-6">
+                <div class="cyber-card h-100">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <h2 class="cyber-card-title mb-0">Policy Confusion Matrix</h2>
+                      <div class="cyber-card-subtitle">Classification verification against ground truth threat labels</div>
+                    </div>
+                    <span class="badge badge-info">Evaluated: <span id="cmTotalQueries" class="font-mono">--</span></span>
+                  </div>
+
+                  <div class="cyber-card-body">
+                    <div class="confusion-matrix-grid">
+                      <!-- True Positives -->
+                      <div class="confusion-cell confusion-cell-tp">
+                        <div id="valTruePositives" class="confusion-val text-safe">--</div>
+                        <div class="fw-bold text-safe" style="font-size: 0.85rem;">TRUE POSITIVE (TP)</div>
+                        <div class="text-dim" style="font-size: 0.75rem;">Threat correctly blocked</div>
+                      </div>
+
+                      <!-- False Positives -->
+                      <div class="confusion-cell confusion-cell-fp">
+                        <div id="valFalsePositives" class="confusion-val text-malicious">--</div>
+                        <div class="fw-bold text-malicious" style="font-size: 0.85rem;">FALSE POSITIVE (FP)</div>
+                        <div class="text-dim" style="font-size: 0.75rem;">Safe domain mistakenly blocked</div>
+                      </div>
+
+                      <!-- False Negatives -->
+                      <div class="confusion-cell confusion-cell-fn">
+                        <div id="valFalseNegatives" class="confusion-val text-suspicious">--</div>
+                        <div class="fw-bold text-suspicious" style="font-size: 0.85rem;">FALSE NEGATIVE (FN)</div>
+                        <div class="text-dim" style="font-size: 0.75rem;">Threat missed (allowed through)</div>
+                      </div>
+
+                      <!-- True Negatives -->
+                      <div class="confusion-cell confusion-cell-tn">
+                        <div id="valTrueNegatives" class="confusion-val text-cyan">--</div>
+                        <div class="fw-bold text-cyan" style="font-size: 0.85rem;">TRUE NEGATIVE (TN)</div>
+                        <div class="text-dim" style="font-size: 0.75rem;">Safe domain correctly allowed</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cyber-card-footer text-muted" style="font-size: 0.8rem;">
+                    <i class="fa-solid fa-triangle-exclamation text-malicious me-1"></i>
+                    <strong>High False Positives</strong> disrupt business SaaS traffic; <strong>False Negatives</strong> represent security evasion risks.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Derived Effectiveness & KPI Gauges -->
+              <div class="col-12 col-xl-6">
+                <div class="cyber-card h-100 d-flex flex-column">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <h2 class="cyber-card-title mb-0">Performance & Security Metrics</h2>
+                      <div class="cyber-card-subtitle">Statistical metrics derived from confusion matrix</div>
+                    </div>
+                    <span id="metricExecutionTime" class="badge badge-info font-mono">0.0ms Latency</span>
+                  </div>
+
+                  <div class="cyber-card-body d-flex flex-column justify-content-around">
+                    
+                    <!-- Policy Effectiveness Score Banner -->
+                    <div class="p-3 rounded-2 mb-3" style="background: linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border: 1px solid var(--border-card);">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <div class="text-dim font-mono" style="font-size: 0.75rem;">POLICY EFFECTIVENESS SCORE (PES)</div>
+                          <div id="metricPES" class="font-mono fw-bold text-cyan" style="font-size: 2.2rem;">--%</div>
+                        </div>
+                        <div class="text-end">
+                          <span id="badgePesRating" class="badge badge-safe font-mono" style="font-size: 0.85rem;">OPTIMAL</span>
+                          <div class="text-dim mt-1" style="font-size: 0.72rem;">Balanced Precision & Recall</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 4 Row Progress Bars -->
+                    <div class="d-flex flex-column gap-3 font-mono" style="font-size: 0.82rem;">
+                      <div>
+                        <div class="d-flex justify-content-between text-muted mb-1">
+                          <span>Detection Rate (Recall)</span>
+                          <span id="metricRecall" class="text-safe fw-bold">--%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; background: rgba(148, 163, 184, 0.1);">
+                          <div id="barRecall" class="progress-bar bg-safe" style="width: 0%"></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div class="d-flex justify-content-between text-muted mb-1">
+                          <span>Precision (Clean Filtering)</span>
+                          <span id="metricPrecision" class="text-cyan fw-bold">--%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; background: rgba(148, 163, 184, 0.1);">
+                          <div id="barPrecision" class="progress-bar bg-cyan" style="width: 0%"></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div class="d-flex justify-content-between text-muted mb-1">
+                          <span>False Positive Rate (FPR)</span>
+                          <span id="metricFPR" class="text-malicious fw-bold">--%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; background: rgba(148, 163, 184, 0.1);">
+                          <div id="barFPR" class="progress-bar bg-malicious" style="width: 0%"></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div class="d-flex justify-content-between text-muted mb-1">
+                          <span>Overall Classification Accuracy</span>
+                          <span id="metricAccuracy" class="text-white fw-bold">--%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; background: rgba(148, 163, 184, 0.1);">
+                          <div id="barAccuracy" class="progress-bar bg-info" style="width: 0%"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row g-4 mb-4">
+              <!-- Category Detection Breakdown -->
+              <div class="col-12 col-lg-6">
+                <div class="cyber-card">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <h2 class="cyber-card-title mb-0">Detection Rate by Threat Category</h2>
+                      <div class="cyber-card-subtitle">Attack vector resilience comparison</div>
+                    </div>
+                  </div>
+                  <div class="cyber-card-body" style="height: 280px; position: relative;">
+                    <canvas id="twinCategoryChart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Shannon Entropy vs Verdict Scatter -->
+              <div class="col-12 col-lg-6">
+                <div class="cyber-card">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <h2 class="cyber-card-title mb-0">Entropy Distribution & Verdicts</h2>
+                      <div class="cyber-card-subtitle">Entropy scores of allowed vs blocked domains</div>
+                    </div>
+                  </div>
+                  <div class="cyber-card-body" style="height: 280px; position: relative;">
+                    <canvas id="twinEntropyChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI Policy Recommendations Panel -->
+            <div class="cyber-card mb-4">
+              <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                <div>
+                  <h2 class="cyber-card-title mb-0 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-cyan"></i>
+                    AI Policy Tuning Recommendations
+                  </h2>
+                  <div class="cyber-card-subtitle">Automated recommendations synthesized from simulation confusion telemetry</div>
+                </div>
+                <span class="badge badge-info">Self-Calibrating Heuristics</span>
+              </div>
+
+              <div class="cyber-card-body">
+                <div id="recommendationsContainer">
+                  <div class="text-center py-4 text-muted">Run a simulation to generate AI policy recommendations.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Deep Forensic Evaluation Table -->
+            <div class="cyber-card">
+              <div class="cyber-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h2 class="cyber-card-title mb-0">Domain Forensic Drill-Down</h2>
+                  <div class="cyber-card-subtitle">Per-query telemetry, classification labels, and triggered heuristic rules</div>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <div class="input-group input-group-sm" style="width: 220px;">
+                    <span class="input-group-text cyber-input border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                    <input type="text" id="filterForensicDomain" class="form-control cyber-input border-start-0" placeholder="Filter domain...">
+                  </div>
+
+                  <div class="btn-group btn-group-sm" role="group" id="filterStatusGroup">
+                    <button type="button" class="btn btn-outline-cyan active" data-filter="ALL">All</button>
+                    <button type="button" class="btn btn-outline-safe" data-filter="TP">TP</button>
+                    <button type="button" class="btn btn-outline-danger" data-filter="FP">FP</button>
+                    <button type="button" class="btn btn-outline-warning" data-filter="FN">FN</button>
+                    <button type="button" class="btn btn-outline-info" data-filter="TN">TN</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table cyber-table align-middle mb-0" id="forensicTable">
+                  <thead>
+                    <tr>
+                      <th>Domain Name</th>
+                      <th>Ground Truth</th>
+                      <th>Simulated Action</th>
+                      <th>Verdict</th>
+                      <th>Type</th>
+                      <th>Entropy</th>
+                      <th>Triggered Rules / Details</th>
+                      <th>Latency</th>
+                    </tr>
+                  </thead>
+                  <tbody id="forensicTableBody">
+                    <tr>
+                      <td colspan="8" class="text-center py-4 text-muted">No simulation data available. Launch a simulation to view domain evaluations.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ================================================================
+               TAB 3: POLICY STUDIO
+               ================================================================ -->
+          <div class="tab-pane fade" id="tab-studio" role="tabpanel">
+            <div class="row g-4">
+              <!-- Left Column: Policy List & Selection -->
+              <div class="col-12 col-lg-4">
+                <div class="cyber-card h-100">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <h2 class="cyber-card-title mb-0">Virtual Policies</h2>
+                    <button id="btnStudioNewPolicy" class="btn btn-outline-cyan btn-sm">
+                      <i class="fa-solid fa-plus me-1"></i> New
+                    </button>
+                  </div>
+
+                  <div class="cyber-card-body p-0">
+                    <div id="studioPolicyList" class="list-group list-group-flush cyber-list-group">
+                      <!-- Populated dynamically -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Policy Configuration Form -->
+              <div class="col-12 col-lg-8">
+                <div class="cyber-card">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                      <h2 class="cyber-card-title mb-0" id="studioFormTitle">Configure Virtual Security Policy</h2>
+                      <div class="cyber-card-subtitle" id="studioFormSubtitle">Fine-tune threat detection parameters, thresholds, and actions</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <button id="btnStudioClone" class="btn btn-outline-cyan btn-sm">
+                        <i class="fa-solid fa-copy me-1"></i> Clone
+                      </button>
+                      <button id="btnStudioDelete" class="btn btn-outline-danger btn-sm">
+                        <i class="fa-solid fa-trash me-1"></i> Delete
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="cyber-card-body">
+                    <form id="studioPolicyForm">
+                      <input type="hidden" id="studioPolicyId" value="">
+
+                      <!-- Policy Name & Description -->
+                      <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                          <label class="form-label text-muted" for="studioPolicyName">Policy Name <span class="text-danger">*</span></label>
+                          <input type="text" id="studioPolicyName" class="form-control cyber-input" required placeholder="e.g. Aggressive Threat Sandbox">
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <label class="form-label text-muted" for="studioPolicyDesc">Description</label>
+                          <input type="text" id="studioPolicyDesc" class="form-control cyber-input" placeholder="Operational purpose of this policy configuration">
+                        </div>
+                      </div>
+
+                      <hr class="cyber-divider my-3">
+
+                      <!-- Heuristics & Sliders -->
+                      <h6 class="text-cyan font-mono text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em;">
+                        <i class="fa-solid fa-sliders me-1"></i> Detection Heuristic Thresholds
+                      </h6>
+
+                      <!-- Shannon Entropy Slider -->
+                      <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <label class="form-label text-muted mb-0" for="studioEntropy">Shannon Entropy Threshold ($H$ cutoff)</label>
+                          <span id="labelStudioEntropy" class="font-mono text-cyan fw-bold">3.90</span>
+                        </div>
+                        <input type="range" class="cyber-range" id="studioEntropy" min="2.80" max="4.60" step="0.05" value="3.90">
+                        <div class="d-flex justify-content-between text-dim" style="font-size: 0.72rem;">
+                          <span>2.80 (Aggressive / High FP Risk)</span>
+                          <span>3.90 (Balanced)</span>
+                          <span>4.60 (Conservative)</span>
+                        </div>
+                      </div>
+
+                      <!-- AI Heuristic Weight Slider -->
+                      <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <label class="form-label text-muted mb-0" for="studioAiWeight">AI Heuristic Multiplier (Typosquatting & Homoglyphs)</label>
+                          <span id="labelStudioAiWeight" class="font-mono text-cyan fw-bold">1.0x</span>
+                        </div>
+                        <input type="range" class="cyber-range" id="studioAiWeight" min="0.5" max="2.5" step="0.1" value="1.0">
+                        <div class="d-flex justify-content-between text-dim" style="font-size: 0.72rem;">
+                          <span>0.5x (Permissive)</span>
+                          <span>1.0x (Standard)</span>
+                          <span>2.5x (Strict Phishing Neutralization)</span>
+                        </div>
+                      </div>
+
+                      <!-- DGA Mode & Min Confidence -->
+                      <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                          <label class="form-label text-muted" for="studioDgaMode">DGA Protection Mode</label>
+                          <select id="studioDgaMode" class="form-select cyber-input">
+                            <option value="Aggressive">Aggressive (Inspect clusters & syntactic anomalies)</option>
+                            <option value="Balanced" selected>Balanced (Standard DGA bigram entropy)</option>
+                            <option value="Conservative">Conservative (High-confidence signatures only)</option>
+                            <option value="Off">Disabled</option>
+                          </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <label class="form-label text-muted" for="studioMinConfidence">Minimum Confidence Threshold</label>
+                          <select id="studioMinConfidence" class="form-select cyber-input font-mono">
+                            <option value="70">70% (Broader coverage)</option>
+                            <option value="80">80% (Recommended)</option>
+                            <option value="85" selected>85% (High assurance)</option>
+                            <option value="95">95% (Zero false positive mandate)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <hr class="cyber-divider my-3">
+
+                      <!-- Enforcement Actions -->
+                      <h6 class="text-cyan font-mono text-uppercase mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em;">
+                        <i class="fa-solid fa-shield me-1"></i> Simulated Enforcement Actions
+                      </h6>
+
+                      <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                          <label class="form-label text-muted" for="studioActionMalicious">Action on Verified Malicious</label>
+                          <select id="studioActionMalicious" class="form-select cyber-input font-mono">
+                            <option value="SINKHOLE_0_0_0_0" selected>DNS Sinkhole (Return 0.0.0.0)</option>
+                            <option value="NXDOMAIN">Return NXDOMAIN (Non-Existent Domain)</option>
+                            <option value="REFUSED">Return REFUSED (Query Rejected)</option>
+                          </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <label class="form-label text-muted" for="studioActionSuspicious">Action on Suspicious Anomalies</label>
+                          <select id="studioActionSuspicious" class="form-select cyber-input font-mono">
+                            <option value="BLOCK_SINKHOLE">Strict Sinkhole (0.0.0.0)</option>
+                            <option value="CHALLENGE_FLAG" selected>Flag as Suspicious (Audit Log)</option>
+                            <option value="ALLOW_WITH_LOG">Allow Query & Stream Telemetry</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <!-- Blocked TLDs Input -->
+                      <div class="mb-3">
+                        <label class="form-label text-muted" for="studioBlockedTlds">Restricted High-Risk TLDs (comma-separated)</label>
+                        <input type="text" id="studioBlockedTlds" class="form-control cyber-input font-mono" placeholder="top, xyz, cc, ru, biz, online, loan, work, vip">
+                        <div class="form-text text-dim">Domains on these top-level domains trigger elevated risk heuristics.</div>
+                      </div>
+
+                      <!-- Custom Whitelist & Blacklist Textareas -->
+                      <div class="row g-3 mb-4">
+                        <div class="col-12 col-md-6">
+                          <label class="form-label text-muted" for="studioWhitelist">Policy Whitelist Exceptions (one per line)</label>
+                          <textarea id="studioWhitelist" class="form-control cyber-input font-mono" rows="3" placeholder="github.com&#10;*.cloudfront.net&#10;microsoft.com"></textarea>
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <label class="form-label text-muted" for="studioBlacklist">Policy Blacklist Enforcements (one per line)</label>
+                          <textarea id="studioBlacklist" class="form-control cyber-input font-mono" rows="3" placeholder="bad-c2-beacon.com&#10;phishing-domain.net"></textarea>
+                        </div>
+                      </div>
+
+                      <!-- Form Actions -->
+                      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2 border-top border-secondary-subtle">
+                        <button type="button" id="btnStudioPromoteLive" class="btn btn-outline-safe">
+                          <i class="fa-solid fa-rocket me-1"></i> Promote Policy to Live Network
+                        </button>
+                        <div class="d-flex gap-2">
+                          <button type="button" id="btnStudioReset" class="btn btn-outline-secondary">Reset</button>
+                          <button type="submit" id="btnStudioSave" class="btn btn-cyan">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Save Virtual Policy
+                          </button>
+                        </div>
+                      </div>
+
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               TAB 4: POLICY COMPARATOR (A/B TESTING)
+               ================================================================ -->
+          <div class="tab-pane fade" id="tab-comparator" role="tabpanel">
+            <div class="cyber-card mb-4">
+              <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                <div>
+                  <h2 class="cyber-card-title mb-0">A/B Digital Twin Policy Comparison</h2>
+                  <div class="cyber-card-subtitle">Evaluate baseline live protection against candidate virtual policies under identical attack traffic</div>
+                </div>
+                <span class="badge badge-info">Zero Network Impact</span>
+              </div>
+
+              <div class="cyber-card-body">
+                <div class="row g-3 align-items-end mb-4">
+                  <!-- Baseline Selector -->
+                  <div class="col-12 col-md-4">
+                    <label class="form-label text-muted" for="compareBasePolicy">Baseline Policy (Current Standard)</label>
+                    <select id="compareBasePolicy" class="form-select cyber-input font-mono">
+                      <!-- Populated dynamically -->
+                    </select>
+                  </div>
+
+                  <!-- Candidate Selector -->
+                  <div class="col-12 col-md-4">
+                    <label class="form-label text-muted" for="compareCandPolicy">Candidate Virtual Policy (Variant)</label>
+                    <select id="compareCandPolicy" class="form-select cyber-input font-mono">
+                      <!-- Populated dynamically -->
+                    </select>
+                  </div>
+
+                  <!-- Scenario Selector & Button -->
+                  <div class="col-12 col-md-4">
+                    <label class="form-label text-muted" for="compareScenario">Attack Benchmark Scenario</label>
+                    <div class="d-flex gap-2">
+                      <select id="compareScenario" class="form-select cyber-input font-mono">
+                        <!-- Populated dynamically -->
+                      </select>
+                      <button id="btnRunComparison" class="btn btn-cyan text-nowrap">
+                        <i class="fa-solid fa-play me-1"></i> Compare
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Comparison Delta KPI Cards -->
+                <div class="row g-3 mb-4">
+                  <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                      <div class="stat-card-title">&Delta; Policy Effectiveness</div>
+                      <div id="diffPES" class="stat-card-value font-mono">--</div>
+                      <div class="stat-card-footer text-muted" id="diffPESDesc">Candidate vs Baseline</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                      <div class="stat-card-title">&Delta; False Positives</div>
+                      <div id="diffFP" class="stat-card-value font-mono">--</div>
+                      <div class="stat-card-footer text-muted" id="diffFPDesc">Lower is better</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                      <div class="stat-card-title">&Delta; Detection Rate (Recall)</div>
+                      <div id="diffRecall" class="stat-card-value font-mono">--</div>
+                      <div class="stat-card-footer text-muted" id="diffRecallDesc">Coverage delta</div>
+                    </div>
+                  </div>
+                  <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                      <div class="stat-card-title">&Delta; False Negatives</div>
+                      <div id="diffFN" class="stat-card-value font-mono">--</div>
+                      <div class="stat-card-footer text-muted" id="diffFNDesc">Missed threats delta</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Side-by-Side Summary Comparison Table -->
+                <div class="table-responsive mb-4">
+                  <table class="table cyber-table align-middle">
+                    <thead>
+                      <tr>
+                        <th>Metric Benchmark</th>
+                        <th id="thBasePolicyName">Baseline Policy</th>
+                        <th id="thCandPolicyName">Candidate Policy</th>
+                        <th>Net Differential (&Delta;)</th>
+                        <th>Security Impact</th>
+                      </tr>
+                    </thead>
+                    <tbody id="comparisonMetricsBody">
+                      <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">Select policies and click "Compare" to evaluate differentials.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Discrepancy Domains Table (Where Decisions Diverged) -->
+                <div class="cyber-card">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <h3 class="cyber-card-title mb-0" style="font-size: 0.95rem;">Discrepancy Domains</h3>
+                      <div class="cyber-card-subtitle">Queries where Baseline and Candidate policies rendered conflicting verdicts</div>
+                    </div>
+                    <span id="discrepancyCountBadge" class="badge badge-info font-mono">0 Differences</span>
+                  </div>
+
+                  <div class="table-responsive">
+                    <table class="table cyber-table align-middle mb-0">
+                      <thead>
+                        <tr>
+                          <th>Domain</th>
+                          <th>Ground Truth</th>
+                          <th>Baseline Verdict</th>
+                          <th>Candidate Verdict</th>
+                          <th>Net Resolution Impact</th>
+                        </tr>
+                      </thead>
+                      <tbody id="discrepancyTableBody">
+                        <tr>
+                          <td colspan="5" class="text-center py-4 text-muted">No comparison run yet.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               TAB 5: RUN HISTORY & REPORTS
+               ================================================================ -->
+          <div class="tab-pane fade" id="tab-reports" role="tabpanel">
+            <div class="cyber-card">
+              <div class="cyber-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h2 class="cyber-card-title mb-0">Simulation History & Audit Reports</h2>
+                  <div class="cyber-card-subtitle">Audited record of Digital Twin simulations with forensic export capabilities</div>
+                </div>
+                <button id="btnRefreshRuns" class="btn btn-outline-cyan btn-sm">
+                  <i class="fa-solid fa-rotate me-1"></i> Refresh
+                </button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table cyber-table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Run ID</th>
+                      <th>Policy Name</th>
+                      <th>Attack Scenario</th>
+                      <th>Queries</th>
+                      <th>Effectiveness (PES)</th>
+                      <th>Recall</th>
+                      <th>FPR</th>
+                      <th>Timestamp</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="runsHistoryTableBody">
+                    <tr>
+                      <td colspan="9" class="text-center py-4 text-muted">Loading simulation run history...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Promotion to Live Modal -->
+  <div class="modal fade" id="promoteLiveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content modal-content-cyber">
+        <div class="modal-header-cyber">
+          <h5 class="modal-title d-flex align-items-center gap-2 text-warning">
+            <i class="fa-solid fa-triangle-exclamation"></i> Confirm Live Policy Promotion
+          </h5>
+          <button type="button" class="btn-close-cyber" data-bs-dismiss="modal">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-main mb-3">
+            You are about to promote the virtual policy parameters of <strong id="promotePolicyName" class="text-cyan">--</strong> directly to the <strong>live production DNS filtering resolver</strong>.
+          </p>
+          <div class="p-3 rounded-2 font-mono mb-3" style="background: rgba(6, 11, 23, 0.7); font-size: 0.82rem;">
+            <div>&bull; Sensitivity: <span id="promoteSensitivity" class="text-cyan">--</span></div>
+            <div>&bull; Action on Malicious: <span id="promoteAction" class="text-safe">--</span></div>
+            <div>&bull; Sinkhole Sync: <span class="text-safe">Immediate</span></div>
+          </div>
+          <div class="text-muted" style="font-size: 0.8rem;">
+            All live incoming DNS lookups will be filtered according to these calibrated thresholds.
+          </div>
+        </div>
+        <div class="modal-footer-cyber d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="btnConfirmPromoteLive" class="btn btn-safe btn-sm">
+            <i class="fa-solid fa-check me-1"></i> Confirm Promotion
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/mock-data.js"></script>
+  <script src="js/api-service.js"></script>
+  <script src="js/cyber-ui.js"></script>
+  <script src="js/charts-config.js"></script>
+  <script src="js/digital-twin.js"></script>
+</body>
+</html>
+

@@ -252,6 +252,14 @@ def seed_initial_data(app: Flask):
             dlog = DnsLog(log_uuid=duid, domain=domain, client_ip=ip, query_type=qtype, resolved_ip=res_ip, response_time_ms=rtime, status=status, category=cat, is_sinkholed=is_sink)
             db.session.add(dlog)
 
+    # 8. Seed Digital Twin Baseline Policy & Attack Scenarios
+    try:
+        from services.digital_twin_service import DigitalTwinService
+        DigitalTwinService.get_or_create_baseline_policy()
+        DigitalTwinService.seed_default_scenarios()
+    except Exception as e:
+        logger.warning(f"Could not seed Digital Twin scenarios: {e}")
+
     db.session.commit()
     logger.info("Database seeding completed.")
 

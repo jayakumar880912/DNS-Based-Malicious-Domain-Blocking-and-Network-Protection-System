@@ -24,7 +24,9 @@ const CyberApiService = (() => {
       THREATS: 'aegis_threats',
       ACTIVITIES: 'aegis_activity_logs',
       AUTH_TOKEN: 'aegis_auth_token',
-      CURRENT_USER: 'aegis_current_user'
+      CURRENT_USER: 'aegis_current_user',
+      VIRTUAL_POLICIES: 'aegis_virtual_policies',
+      SIMULATION_RUNS: 'aegis_simulation_runs'
     }
   };
 
@@ -525,6 +527,340 @@ const CyberApiService = (() => {
         protectionEnabled: isEnabled,
         dnsProtectionStatus: isEnabled ? 'ACTIVE' : 'PAUSED'
       });
+    },
+
+    // ==========================================================================
+    // AI-Powered Digital Twin & Policy Simulation Endpoints
+    // ==========================================================================
+
+    /**
+     * Get all Virtual Policies
+     * Endpoint: GET /api/digital-twin/policies
+     */
+    async getVirtualPolicies() {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(250);
+        const stored = getStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, mock.digitalTwin?.virtualPolicies || []);
+        return { success: true, policies: stored, count: stored.length };
+      }
+      try {
+        const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/policies`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.warn('Backend unavailable, falling back to mock virtual policies:', err);
+        const stored = getStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, mock.digitalTwin?.virtualPolicies || []);
+        return { success: true, policies: stored, count: stored.length };
+      }
+    },
+
+    /**
+     * Create Virtual Policy
+     * Endpoint: POST /api/digital-twin/policies
+     */
+    async createVirtualPolicy(policyData) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(350);
+        const policies = getStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, mock.digitalTwin?.virtualPolicies || []);
+        const newPolicy = {
+          id: Date.now(),
+          ...policyData,
+          isBaseline: false,
+          createdBy: 'SecOps Administrator',
+          createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+          updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 19)
+        };
+        policies.push(newPolicy);
+        setStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, policies);
+        return { success: true, policy: newPolicy, message: `Virtual Policy '${newPolicy.name}' created.` };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/policies`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(policyData)
+      });
+      return await res.json();
+    },
+
+    /**
+     * Update Virtual Policy
+     * Endpoint: PUT /api/digital-twin/policies/<id>
+     */
+    async updateVirtualPolicy(policyId, policyData) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(300);
+        let policies = getStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, mock.digitalTwin?.virtualPolicies || []);
+        const idx = policies.findIndex(p => p.id === policyId);
+        if (idx !== -1) {
+          policies[idx] = { ...policies[idx], ...policyData, updatedAt: new Date().toISOString() };
+          setStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, policies);
+          return { success: true, policy: policies[idx], message: 'Policy updated.' };
+        }
+        throw new Error('Policy not found');
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/policies/${policyId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(policyData)
+      });
+      return await res.json();
+    },
+
+    /**
+     * Delete Virtual Policy
+     * Endpoint: DELETE /api/digital-twin/policies/<id>
+     */
+    async deleteVirtualPolicy(policyId) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(250);
+        let policies = getStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, mock.digitalTwin?.virtualPolicies || []);
+        policies = policies.filter(p => p.id !== policyId);
+        setStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, policies);
+        return { success: true, message: 'Policy deleted.' };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/policies/${policyId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      return await res.json();
+    },
+
+    /**
+     * Clone Virtual Policy
+     * Endpoint: POST /api/digital-twin/policies/<id>/clone
+     */
+    async cloneVirtualPolicy(policyId, newName) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(300);
+        const policies = getStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, mock.digitalTwin?.virtualPolicies || []);
+        const source = policies.find(p => p.id === policyId);
+        if (!source) throw new Error('Policy not found');
+        const cloned = {
+          ...source,
+          id: Date.now(),
+          name: newName || `Copy of ${source.name}`,
+          isBaseline: false,
+          createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19)
+        };
+        policies.push(cloned);
+        setStoredData(CONFIG.STORAGE_KEYS.VIRTUAL_POLICIES, policies);
+        return { success: true, policy: cloned, message: 'Policy cloned.' };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/policies/${policyId}/clone`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ name: newName })
+      });
+      return await res.json();
+    },
+
+    /**
+     * Promote Virtual Policy to Live System
+     * Endpoint: POST /api/digital-twin/policies/<id>/promote-to-live
+     */
+    async promoteVirtualPolicy(policyId) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(450);
+        return {
+          success: true,
+          message: 'Virtual policy promoted to live network DNS protection.',
+          appliedSettings: { sensitivity: 'Strict', action: 'SINKHOLE_0_0_0_0' }
+        };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/policies/${policyId}/promote-to-live`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      return await res.json();
+    },
+
+    /**
+     * Get Attack Scenarios
+     * Endpoint: GET /api/digital-twin/scenarios
+     */
+    async getSimulationScenarios(includeDataset = false) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(250);
+        return { success: true, scenarios: mock.digitalTwin?.scenarios || [], count: 3 };
+      }
+      try {
+        const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/scenarios?includeDataset=${includeDataset}`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.warn('Backend unavailable, falling back to mock scenarios:', err);
+        return { success: true, scenarios: mock.digitalTwin?.scenarios || [], count: 3 };
+      }
+    },
+
+    /**
+     * Run Isolated Policy Simulation
+     * Endpoint: POST /api/digital-twin/simulate
+     */
+    async runSimulation(policyId, scenarioId = null, customDataset = null) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(800);
+        // Realistic synthetic results
+        const items = [
+          { domain: 'paypa1-security-update-verify.com', groundTruth: 'MALICIOUS', simulatedAction: 'BLOCKED', simulatedVerdict: 'MALICIOUS', category: 'Phishing', classificationType: 'TP', isCorrect: true, confidenceScore: 98, entropyScore: 3.82, triggerRules: ['AI Typosquatting', 'Threat Category: Phishing'], reason: 'Intercepted and sinkholed', latencyMs: 1.1 },
+          { domain: 'chase-security-auth-login.online', groundTruth: 'MALICIOUS', simulatedAction: 'BLOCKED', simulatedVerdict: 'MALICIOUS', category: 'Phishing', classificationType: 'TP', isCorrect: true, confidenceScore: 95, entropyScore: 3.91, triggerRules: ['Restricted TLD (.online)', 'Typosquatting Signature'], reason: 'Blocked by TLD policy', latencyMs: 1.2 },
+          { domain: 'd3c33hcgiwev3.cloudfront.net', groundTruth: 'BENIGN', simulatedAction: 'ALLOWED', simulatedVerdict: 'SAFE', category: 'CDN / Cloudfront', classificationType: 'TN', isCorrect: true, confidenceScore: 92, entropyScore: 3.84, triggerRules: [], reason: 'Passed heuristic checks', latencyMs: 0.9 },
+          { domain: 'x7k9q2m10v8z.info', groundTruth: 'MALICIOUS', simulatedAction: 'BLOCKED', simulatedVerdict: 'MALICIOUS', category: 'DGA Anomaly', classificationType: 'TP', isCorrect: true, confidenceScore: 96, entropyScore: 4.12, triggerRules: ['Shannon Entropy (4.12 >= 3.90)', 'DGA Consonant Cluster'], reason: 'Blocked algorithmic beacon', latencyMs: 1.4 },
+          { domain: 'google.com', groundTruth: 'BENIGN', simulatedAction: 'ALLOWED', simulatedVerdict: 'SAFE', category: 'Search', classificationType: 'TN', isCorrect: true, confidenceScore: 100, entropyScore: 2.15, triggerRules: [], reason: 'Clean domain reputation', latencyMs: 0.8 },
+          { domain: 'irs-tax-refund-claim-gov.cc', groundTruth: 'MALICIOUS', simulatedAction: 'BLOCKED', simulatedVerdict: 'MALICIOUS', category: 'Phishing', classificationType: 'TP', isCorrect: true, confidenceScore: 94, entropyScore: 3.65, triggerRules: ['Restricted TLD (.cc)', 'Deceptive Pattern'], reason: 'Blocked phishing portal', latencyMs: 1.2 },
+          { domain: 'apple.com', groundTruth: 'BENIGN', simulatedAction: 'ALLOWED', simulatedVerdict: 'SAFE', category: 'Technology', classificationType: 'TN', isCorrect: true, confidenceScore: 100, entropyScore: 2.32, triggerRules: [], reason: 'Official company domain', latencyMs: 0.7 }
+        ];
+        return {
+          success: true,
+          runId: Date.now(),
+          runUuid: `SIM-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+          summary: {
+            totalQueries: items.length,
+            truePositives: 4,
+            falsePositives: 0,
+            trueNegatives: 3,
+            falseNegatives: 0,
+            accuracy: 100.0,
+            precision: 100.0,
+            recall: 100.0,
+            f1Score: 100.0,
+            falsePositiveRate: 0.0,
+            falseNegativeRate: 0.0,
+            effectivenessScore: 100.0,
+            executionTimeMs: 12.4
+          },
+          recommendations: [
+            {
+              id: 'REC-PROD-READY',
+              type: 'PROMOTION_READY',
+              title: 'Security Policy Ready for Production Deployment',
+              severity: 'INFO',
+              finding: 'Policy achieved 100% Policy Effectiveness with 0% False Positive Rate.',
+              recommendation: 'Policy demonstrates robust resilience against phishing and DGA attacks. Ready to promote.',
+              parameter: 'is_baseline',
+              suggestedValue: true,
+              estimatedImpact: 'Zero disruption, maximum protection'
+            }
+          ],
+          items: items
+        };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/simulate`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ policyId, scenarioId, customDataset })
+      });
+      return await res.json();
+    },
+
+    /**
+     * Compare Policies (A/B Digital Twin)
+     * Endpoint: POST /api/digital-twin/compare
+     */
+    async comparePolicies(baselinePolicyId, candidatePolicyId, scenarioId) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(900);
+        return {
+          success: true,
+          baselineSummary: { accuracy: 91.5, precision: 92.0, recall: 89.0, f1Score: 90.5, falsePositiveRate: 3.2, effectivenessScore: 90.2 },
+          candidateSummary: { accuracy: 98.2, precision: 100.0, recall: 96.5, f1Score: 98.2, falsePositiveRate: 0.0, effectivenessScore: 98.1 },
+          deltas: {
+            accuracy: 6.7,
+            precision: 8.0,
+            recall: 7.5,
+            f1Score: 7.7,
+            falsePositiveRate: -3.2,
+            effectivenessScore: 7.9,
+            falsePositivesDelta: -2,
+            falseNegativesDelta: -3
+          },
+          discrepancies: [
+            {
+              domain: 'd3c33hcgiwev3.cloudfront.net',
+              groundTruth: 'BENIGN',
+              category: 'CDN / Cloudfront',
+              baseline: { action: 'BLOCKED', verdict: 'SUSPICIOUS', type: 'FP', reason: 'Entropy > 3.80' },
+              candidate: { action: 'ALLOWED', verdict: 'SAFE', type: 'TN', reason: 'Tolerant threshold' },
+              impact: 'FIXED_FALSE_POSITIVE',
+              impactBadge: 'safe'
+            },
+            {
+              domain: 'q1w2e3r4t5y6u7.top',
+              groundTruth: 'MALICIOUS',
+              category: 'DGA Anomaly',
+              baseline: { action: 'ALLOWED', verdict: 'SAFE', type: 'FN', reason: 'Entropy below 3.90' },
+              candidate: { action: 'BLOCKED', verdict: 'MALICIOUS', type: 'TP', reason: 'Aggressive DGA inspection' },
+              impact: 'PREVENTED_BREACH',
+              impactBadge: 'safe'
+            }
+          ],
+          discrepancyCount: 2,
+          assessment: {
+            verdict: 'CANDIDATE_SUPERIOR',
+            summary: 'Candidate policy yields Δ +7.9% Policy Effectiveness with -2 False Positives and -3 False Negatives.'
+          }
+        };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/compare`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ baselinePolicyId, candidatePolicyId, scenarioId })
+      });
+      return await res.json();
+    },
+
+    /**
+     * Get Simulation History Runs
+     * Endpoint: GET /api/digital-twin/runs
+     */
+    async getSimulationRuns(limit = 20) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(200);
+        return { success: true, runs: [], count: 0 };
+      }
+      try {
+        const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/runs?limit=${limit}`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        return { success: true, runs: [], count: 0 };
+      }
+    },
+
+    /**
+     * Get Simulation Run Details with forensic items
+     * Endpoint: GET /api/digital-twin/runs/<id>
+     */
+    async getSimulationRunDetails(runId) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(300);
+        return { success: true, run: null };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/runs/${runId}`, {
+        headers: getAuthHeaders()
+      });
+      return await res.json();
+    },
+
+    /**
+     * Export Simulation Report
+     * Endpoint: GET /api/digital-twin/runs/<id>/export
+     */
+    async exportSimulationReport(runId) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(200);
+        return { success: true, report: { reportTitle: 'Demo Export', runId } };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/digital-twin/runs/${runId}/export`, {
+        headers: getAuthHeaders()
+      });
+      return await res.json();
     }
   };
 })();

@@ -436,6 +436,99 @@ const CyberMockData = {
     adminEmail: 'admin@aegisdns.security',
     adminUsername: 'admin_secops',
     adminRole: 'Cybersecurity Incident Lead'
+  },
+
+  // Digital Twin & Policy Simulation Mock Data
+  digitalTwin: {
+    virtualPolicies: [
+      {
+        id: 1,
+        name: 'Production Baseline Policy (Live Replica)',
+        description: 'Digital Twin replica mirroring active live network DNS protection rules.',
+        entropyThreshold: 3.90,
+        blockedTlds: ['top', 'xyz', 'cc', 'ru', 'biz', 'online', 'loan', 'work', 'vip'],
+        blockedCategories: ['Phishing', 'Malware C2', 'Ransomware Dropper', 'Cryptomining', 'DGA Anomaly'],
+        dgaProtectionMode: 'Balanced',
+        aiHeuristicWeight: 1.0,
+        minConfidenceScore: 85,
+        actionMalicious: 'SINKHOLE_0_0_0_0',
+        actionSuspicious: 'CHALLENGE_FLAG',
+        customWhitelist: ['github.com', 'microsoft.com'],
+        customBlacklist: [],
+        isBaseline: true,
+        createdBy: 'System Digital Twin Engine',
+        createdAt: '2026-10-31 20:00:00',
+        updatedAt: '2026-10-31 20:00:00'
+      },
+      {
+        id: 2,
+        name: 'Aggressive Zero-Trust Policy',
+        description: 'Strict Shannon entropy and aggressive DGA detection for elevated threat posture.',
+        entropyThreshold: 3.70,
+        blockedTlds: ['top', 'xyz', 'cc', 'ru', 'biz', 'online', 'loan', 'work', 'vip', 'link', 'tokyo'],
+        blockedCategories: ['Phishing', 'Malware C2', 'Ransomware Dropper', 'Cryptomining', 'DGA Anomaly', 'Adware / Spyware'],
+        dgaProtectionMode: 'Aggressive',
+        aiHeuristicWeight: 1.4,
+        minConfidenceScore: 75,
+        actionMalicious: 'SINKHOLE_0_0_0_0',
+        actionSuspicious: 'BLOCK_SINKHOLE',
+        customWhitelist: ['github.com', 'microsoft.com', 'cloudfront.net'],
+        customBlacklist: [],
+        isBaseline: false,
+        createdBy: 'SecOps Administrator',
+        createdAt: '2026-11-01 10:15:00',
+        updatedAt: '2026-11-01 10:15:00'
+      },
+      {
+        id: 3,
+        name: 'Relaxed Developer / Cloud Sandbox Policy',
+        description: 'Tolerant entropy thresholds designed to avoid false positives on dynamic microservices and CDN endpoints.',
+        entropyThreshold: 4.25,
+        blockedTlds: ['top', 'xyz', 'cc'],
+        blockedCategories: ['Phishing', 'Malware C2'],
+        dgaProtectionMode: 'Conservative',
+        aiHeuristicWeight: 0.8,
+        minConfidenceScore: 90,
+        actionMalicious: 'NXDOMAIN',
+        actionSuspicious: 'ALLOW_WITH_LOG',
+        customWhitelist: ['*'],
+        customBlacklist: [],
+        isBaseline: false,
+        createdBy: 'SecOps Administrator',
+        createdAt: '2026-11-01 11:30:00',
+        updatedAt: '2026-11-01 11:30:00'
+      }
+    ],
+
+    scenarios: [
+      {
+        id: 1,
+        scenarioKey: 'phishing-surge',
+        name: 'Phishing & Brand Impersonation Campaign Surge',
+        category: 'Phishing / Social Engineering',
+        description: 'Simulates a massive wave of credential harvesting and brand impersonation attacks targeting banking, cloud, and enterprise SSO portals.',
+        difficulty: 'High',
+        domainCount: 25
+      },
+      {
+        id: 2,
+        scenarioKey: 'dga-botnet',
+        name: 'DGA Botnet Infiltration & Ransomware C2 Beaconing',
+        category: 'DGA / Malware C2',
+        description: 'Evaluates detection resilience against pseudorandom algorithmic domain generation (DGA) used by ransomware and advanced botnets while monitoring CDN false positives.',
+        difficulty: 'Advanced',
+        domainCount: 22
+      },
+      {
+        id: 3,
+        scenarioKey: 'enterprise-benchmark',
+        name: 'Enterprise Mixed Traffic Benchmark (Stress Test)',
+        category: 'Mixed Workload',
+        description: 'Balanced benchmark simulating 75% legitimate corporate SaaS & developer lookups alongside 25% blended zero-day and known cyber threats.',
+        difficulty: 'Advanced',
+        domainCount: 24
+      }
+    ]
   }
 };
 

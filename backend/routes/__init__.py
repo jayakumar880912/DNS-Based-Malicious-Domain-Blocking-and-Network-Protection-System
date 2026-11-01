@@ -11,6 +11,7 @@ from routes.blocked import blocked_bp
 from routes.dashboard import dashboard_bp
 from routes.settings import settings_bp
 from routes.activity import activity_bp
+from routes.digital_twin import digital_twin_bp
 
 
 def register_routes(app):
@@ -23,4 +24,5 @@ def register_routes(app):
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(settings_bp)
     app.register_blueprint(activity_bp)
+    app.register_blueprint(digital_twin_bp)
 

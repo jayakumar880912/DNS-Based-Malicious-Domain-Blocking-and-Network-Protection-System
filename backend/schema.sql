@@ -155,3 +155,92 @@ CREATE TABLE IF NOT EXISTS `system_settings` (
     INDEX `idx_setting_key` (`setting_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 10. Virtual Policies Table (Digital Twin Configuration Studio)
+CREATE TABLE IF NOT EXISTS `virtual_policies` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(150) NOT NULL UNIQUE,
+    `description` TEXT NULL,
+    `entropy_threshold` FLOAT NOT NULL DEFAULT 3.90,
+    `blocked_tlds_json` TEXT NULL,
+    `blocked_categories_json` TEXT NULL,
+    `dga_protection_mode` VARCHAR(50) NOT NULL DEFAULT 'Balanced',
+    `ai_heuristic_weight` FLOAT NOT NULL DEFAULT 1.0,
+    `min_confidence_score` INT NOT NULL DEFAULT 80,
+    `action_malicious` VARCHAR(50) NOT NULL DEFAULT 'SINKHOLE_0_0_0_0',
+    `action_suspicious` VARCHAR(50) NOT NULL DEFAULT 'CHALLENGE_FLAG',
+    `custom_whitelist_json` TEXT NULL,
+    `custom_blacklist_json` TEXT NULL,
+    `is_baseline` BOOLEAN NOT NULL DEFAULT FALSE,
+    `created_by` VARCHAR(100) NOT NULL DEFAULT 'SecOps Administrator',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_policy_name` (`name`),
+    INDEX `idx_policy_baseline` (`is_baseline`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 11. Simulation Scenarios Table (Attack & Traffic Datasets with Ground Truth)
+CREATE TABLE IF NOT EXISTS `simulation_scenarios` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `scenario_key` VARCHAR(80) NOT NULL UNIQUE,
+    `name` VARCHAR(150) NOT NULL,
+    `category` VARCHAR(100) NOT NULL,
+    `description` TEXT NOT NULL,
+    `difficulty` VARCHAR(30) NOT NULL DEFAULT 'Advanced',
+    `domain_count` INT NOT NULL DEFAULT 0,
+    `dataset_json` LONGTEXT NOT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_scenario_key` (`scenario_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 12. Simulation Runs Table (Aggregated Digital Twin Run Metrics)
+CREATE TABLE IF NOT EXISTS `simulation_runs` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `run_uuid` VARCHAR(64) NOT NULL UNIQUE,
+    `policy_id` INT NULL,
+    `policy_name` VARCHAR(150) NOT NULL,
+    `scenario_id` INT NULL,
+    `scenario_name` VARCHAR(150) NOT NULL,
+    `total_queries` INT NOT NULL DEFAULT 0,
+    `true_positives` INT NOT NULL DEFAULT 0,
+    `false_positives` INT NOT NULL DEFAULT 0,
+    `true_negatives` INT NOT NULL DEFAULT 0,
+    `false_negatives` INT NOT NULL DEFAULT 0,
+    `accuracy` FLOAT NOT NULL DEFAULT 0.0,
+    `precision` FLOAT NOT NULL DEFAULT 0.0,
+    `recall` FLOAT NOT NULL DEFAULT 0.0,
+    `f1_score` FLOAT NOT NULL DEFAULT 0.0,
+    `fpr` FLOAT NOT NULL DEFAULT 0.0,
+    `fnr` FLOAT NOT NULL DEFAULT 0.0,
+    `effectiveness_score` FLOAT NOT NULL DEFAULT 0.0,
+    `execution_time_ms` FLOAT NOT NULL DEFAULT 0.0,
+    `recommendations_json` TEXT NULL,
+    `user_id` INT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`policy_id`) REFERENCES `virtual_policies`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`scenario_id`) REFERENCES `simulation_scenarios`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL,
+    INDEX `idx_sim_run_uuid` (`run_uuid`),
+    INDEX `idx_sim_run_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 13. Simulation Items Table (Per-Domain Forensic Telemetry)
+CREATE TABLE IF NOT EXISTS `simulation_items` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `run_id` INT NOT NULL,
+    `domain` VARCHAR(255) NOT NULL,
+    `ground_truth` VARCHAR(30) NOT NULL,
+    `simulated_action` VARCHAR(30) NOT NULL,
+    `simulated_verdict` VARCHAR(30) NOT NULL,
+    `category` VARCHAR(100) NULL,
+    `classification_type` VARCHAR(10) NOT NULL, -- TP, FP, TN, FN
+    `is_correct` BOOLEAN NOT NULL,
+    `confidence_score` INT NOT NULL DEFAULT 0,
+    `entropy_score` FLOAT NULL,
+    `trigger_rules_json` TEXT NULL,
+    `forensic_reason` TEXT NULL,
+    `latency_ms` FLOAT NOT NULL DEFAULT 1.0,
+    FOREIGN KEY (`run_id`) REFERENCES `simulation_runs`(`id`) ON DELETE CASCADE,
+    INDEX `idx_sim_item_run` (`run_id`),
+    INDEX `idx_sim_item_type` (`classification_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

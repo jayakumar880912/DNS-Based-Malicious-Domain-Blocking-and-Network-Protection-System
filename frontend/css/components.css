@@ -404,3 +404,220 @@
   color: var(--cyan-primary);
 }
 
+/* ==========================================================================
+   AI Digital Twin & Policy Simulation Components
+   ========================================================================== */
+
+/* Scenario Selection Cards */
+.scenario-card {
+  background: rgba(11, 20, 39, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.4rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.scenario-card:hover {
+  border-color: rgba(0, 240, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 240, 255, 0.1);
+}
+
+.scenario-card.active {
+  background: linear-gradient(135deg, rgba(13, 27, 56, 0.9) 0%, rgba(9, 18, 38, 0.95) 100%);
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.25), inset 0 0 15px rgba(0, 240, 255, 0.08);
+}
+
+.scenario-card.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--cyan-primary);
+}
+
+/* Confusion Matrix Component */
+.confusion-matrix-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.confusion-cell {
+  background: rgba(8, 14, 28, 0.75);
+  border-radius: var(--radius-sm);
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--border-subtle);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.confusion-cell-tp {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.confusion-cell-tp:hover {
+  border-color: var(--color-safe);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.confusion-cell-fp {
+  border-color: rgba(255, 51, 102, 0.3);
+  background: rgba(255, 51, 102, 0.06);
+}
+
+.confusion-cell-fp:hover {
+  border-color: var(--color-malicious);
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.2);
+}
+
+.confusion-cell-tn {
+  border-color: rgba(0, 240, 255, 0.3);
+  background: rgba(0, 240, 255, 0.06);
+}
+
+.confusion-cell-tn:hover {
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+.confusion-cell-fn {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.confusion-cell-fn:hover {
+  border-color: var(--color-suspicious);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+}
+
+.confusion-val {
+  font-size: 1.85rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+}
+
+/* Simulation Terminal View */
+.sim-terminal {
+  background: #040711;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #7dd3fc;
+  height: 220px;
+  overflow-y: auto;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.sim-terminal-line {
+  margin-bottom: 0.35rem;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.sim-terminal-prompt {
+  color: var(--cyan-primary);
+  margin-right: 0.5rem;
+}
+
+/* AI Recommendation Cards */
+.recommendation-card {
+  background: rgba(13, 23, 45, 0.7);
+  border-left: 4px solid var(--cyan-primary);
+  border-radius: var(--radius-sm);
+  padding: 1.15rem 1.35rem;
+  margin-bottom: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+}
+
+.recommendation-card.rec-critical {
+  border-left-color: var(--color-malicious);
+}
+
+.recommendation-card.rec-high {
+  border-left-color: var(--color-suspicious);
+}
+
+.recommendation-card.rec-info {
+  border-left-color: var(--color-safe);
+}
+
+.recommendation-card:hover {
+  transform: translateX(4px);
+  background: rgba(17, 30, 59, 0.85);
+}
+
+/* Comparison Delta Badges */
+.badge-delta-pos {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-safe);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.badge-delta-neg {
+  background: rgba(255, 51, 102, 0.15);
+  color: var(--color-malicious);
+  border: 1px solid rgba(255, 51, 102, 0.3);
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.badge-delta-neutral {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* Neon Range Sliders */
+.cyber-range {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 240, 255, 0.18);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.cyber-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--cyan-primary);
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--cyan-primary);
+  transition: transform 0.1s ease;
+}
+
+.cyber-range::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+

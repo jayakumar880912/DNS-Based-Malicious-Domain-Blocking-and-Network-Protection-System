@@ -9,6 +9,7 @@ from models.dns_log import DnsLog
 from models.threat import ThreatDetection
 from models.activity import ActivityLog
 from models.setting import SystemSetting
+from models.digital_twin import VirtualPolicy, SimulationScenario, SimulationRun, SimulationItem
 
 __all__ = [
     'User',
@@ -19,6 +20,9 @@ __all__ = [
     'DnsLog',
     'ThreatDetection',
     'ActivityLog',
-    'SystemSetting'
+    'SystemSetting',
+    'VirtualPolicy',
+    'SimulationScenario',
+    'SimulationRun',
+    'SimulationItem'
 ]
-
