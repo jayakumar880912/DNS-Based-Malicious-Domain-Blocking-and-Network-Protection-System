@@ -23,7 +23,7 @@ const CyberUI = (() => {
      * @param {string} type - 'success' | 'danger' | 'warning' | 'info'
      * @param {number} duration - ms to stay visible
      */
-    showToast(message, type = 'info', duration = 3500) {
+    showToast(message, type = 'info', duration = 6000) {
       const container = ensureToastContainer();
       const toast = document.createElement('div');
       toast.className = `toast-cyber toast-${type}`;
@@ -50,14 +50,14 @@ const CyberUI = (() => {
         toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
-        setTimeout(() => toast.remove(), 400);
+        setTimeout(() => toast.remove(), 6000);
       }, duration);
     },
 
     /**
      * Animate numeric counters from 0 to target
      */
-    animateCounter(element, target, duration = 1200) {
+    animateCounter(element, target, duration = 2000) {
       if (!element) return;
       const start = 0;
       const startTime = performance.now();

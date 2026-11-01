@@ -12,9 +12,9 @@
 const CyberApiService = (() => {
   // Configuration for Backend Connection
   const CONFIG = {
-    // Set to true to use rich client-side demonstration data.
-    // Set to false when connecting to live Python Flask server (e.g., http://localhost:5000/api)
-    USE_MOCK: true,
+    // Set to false to connect to the live Python Flask backend.
+    // If Flask backend is offline, calls gracefully fall back to local mock data.
+    USE_MOCK: false,
     BASE_URL: 'http://localhost:5000/api',
     TIMEOUT_MS: 5000,
     STORAGE_KEYS: {
@@ -26,6 +26,14 @@ const CyberApiService = (() => {
       AUTH_TOKEN: 'aegis_auth_token',
       CURRENT_USER: 'aegis_current_user'
     }
+  };
+
+  // Helper to attach JWT Bearer token
+  const getAuthHeaders = () => {
+    const headers = { 'Content-Type': 'application/json' };
+    const token = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN);
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
   };
 
   // Helper to simulate network latency for authentic UI responsiveness

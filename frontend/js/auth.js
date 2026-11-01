@@ -120,7 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const fullName = document.getElementById('regFullName').value.trim();
       const email = document.getElementById('regEmail').value.trim();
-      const username = document.getElementById('regUsername').value.trim();
+      const username = document.getElementById('regUsername').value.trim().replace(/\s/g, '');
+      console.log("Entered Username:", username);
+      console.log("Username Length:", username.length);
+      console.log("Username Valid:", /^[a-zA-Z0-9_]{3,20}$/.test(username));
       const password = document.getElementById('regPassword').value;
       const confirmPassword = document.getElementById('regConfirmPassword').value;
       const termsAccepted = document.getElementById('regTerms')?.checked;
@@ -134,8 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showAuthAlert(regAlert, 'Please enter a valid business or security analyst email address.');
         return;
       }
-      if (!username || username.length < 3) {
-        showAuthAlert(regAlert, 'Username must be at least 3 alphanumeric characters.');
+      if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+        showAuthAlert(regAlert, 'Username must contain 3-20 characters using only letters, numbers, and underscores.');
         return;
       }
       if (!password || password.length < 8) {
