@@ -106,7 +106,10 @@ def create_app(config_name: str = 'default') -> Flask:
                 'blocked_domains': '/api/blocked-domains',
                 'dashboard': '/api/dashboard/statistics',
                 'settings': '/api/settings',
-                'activity_logs': '/api/activity-logs'
+                'activity_logs': '/api/activity-logs',
+                'digital_twin': '/api/digital-twin',
+                'forensics': '/api/forensics',
+                'failover': '/api/failover'
             }
         })
 
@@ -266,6 +269,64 @@ def seed_initial_data(app: Flask):
         ForensicsService.seed_default_incidents()
     except Exception as e:
         logger.warning(f"Could not seed Forensic Incidents: {e}")
+
+    # 10. Seed Self-Recovering DNS Resolvers & Historical Failover Baseline
+    try:
+        from services.failover_service import FailoverService
+        from models.failover import DnsResolverConfig, FailoverEvent
+        FailoverService.seed_default_resolvers()
+
+        if FailoverEvent.query.count() == 0:
+            import json
+            from datetime import datetime, timezone, timedelta
+            past_time = datetime.now(timezone.utc) - timedelta(hours=6)
+            rec_time = past_time + timedelta(seconds=48.2)
+
+            primary_res = DnsResolverConfig.query.filter_by(priority=1).first()
+            backup_res = DnsResolverConfig.query.filter_by(priority=2).first()
+
+            hist_event = FailoverEvent(
+                event_uuid='FLV-9081-HIST',
+                trigger_reason='PRIMARY_TIMEOUT_CONSECUTIVE_PACKET_LOSS',
+                from_resolver_id=primary_res.id if primary_res else None,
+                from_resolver_name=primary_res.name if primary_res else 'Primary Cloudflare DNS',
+                from_resolver_ip=primary_res.ip_address if primary_res else '1.1.1.1',
+                to_resolver_id=backup_res.id if backup_res else None,
+                to_resolver_name=backup_res.name if backup_res else 'Secondary Google Public DNS',
+                to_resolver_ip=backup_res.ip_address if backup_res else '8.8.8.8',
+                verification_passed=True,
+                failover_timestamp=past_time,
+                recovery_timestamp=rec_time,
+                recovery_duration_seconds=48.2,
+                queries_handled_on_backup=142,
+                blocked_threats_during_failover=11,
+                status='RECOVERED_NORMAL',
+                security_integrity_verified=True,
+                incident_summary='Upstream provider transient route degradation detected. Seamlessly failed over to Secondary Google Public DNS after canary verification passed. Safe failback completed after 3 consecutive successful health probes.',
+                audit_report=json.dumps({
+                    'eventUuid': 'FLV-9081-HIST',
+                    'triggerReason': 'PRIMARY_TIMEOUT_CONSECUTIVE_PACKET_LOSS',
+                    'canaryVerification': {
+                        'targetIp': '8.8.8.8',
+                        'port': 53,
+                        'canaryDomain': 'cloudflare.com',
+                        'status': 'VERIFIED_SECURE',
+                        'rcode': 'NOERROR',
+                        'latencyMs': 14.8,
+                        'records': ['104.16.132.229', '104.16.133.229']
+                    },
+                    'securityPreservation': {
+                        'blocklistEnforcement': '100% Active',
+                        'sinkholeNullRouteActive': True,
+                        'sinkholeIp': '0.0.0.0'
+                    }
+                })
+            )
+            db.session.add(hist_event)
+            db.session.commit()
+            logger.info("Seeded baseline historical failover event (FLV-9081-HIST)")
+    except Exception as e:
+        logger.warning(f"Could not seed DNS failover resolvers: {e}")
 
     db.session.commit()
     logger.info("Database seeding completed.")

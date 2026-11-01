@@ -22,10 +22,15 @@ class DnsService:
         """
         if not upstream:
             try:
-                upstream = SystemSetting.get_val('upstream_dns', '1.1.1.1')
-                upstream = upstream.split()[0].strip() if upstream else '1.1.1.1'
+                from services.failover_service import FailoverService
+                active_up, _, _ = FailoverService.get_active_upstream()
+                upstream = active_up
             except Exception:
-                upstream = '1.1.1.1'
+                try:
+                    upstream = SystemSetting.get_val('upstream_dns', '1.1.1.1')
+                    upstream = upstream.split()[0].strip() if upstream else '1.1.1.1'
+                except Exception:
+                    upstream = '1.1.1.1'
 
         resolver = dns.resolver.Resolver(configure=False)
         resolver.nameservers = [upstream]

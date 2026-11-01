@@ -134,6 +134,7 @@ class DnsFilteringResolver:
                 try:
                     with self.app.app_context():
                         from services.dns_service import DnsService
+                        from services.failover_service import FailoverService
                         DnsService.log_query(
                             domain=domain_name,
                             client_ip=client_ip,
@@ -144,21 +145,32 @@ class DnsFilteringResolver:
                             category='Sinkhole Null-Route',
                             is_sinkholed=True
                         )
+                        FailoverService.record_query_served(is_blocked=True)
                 except Exception as e:
                     logger.debug(f"Failed to record sinkhole log: {e}")
 
         else:
             # Domain is clean - forward to upstream resolver
+            # Retrieve currently active healthy upstream from FailoverService
+            active_upstream = self.upstream_server
+            active_port = self.upstream_port
+            if self.app:
+                try:
+                    from services.failover_service import FailoverService
+                    active_upstream, active_port, _ = FailoverService.get_active_upstream()
+                except Exception:
+                    pass
+
             try:
                 upstream_response = dns.query.udp(
                     q=query,
-                    where=self.upstream_server,
-                    port=self.upstream_port,
+                    where=active_upstream,
+                    port=active_port,
                     timeout=2.5
                 )
                 self._socket.sendto(upstream_response.to_wire(), client_addr)
                 elapsed_ms = (time.perf_counter() - start_time) * 1000.0
-                logger.debug(f"[RESOLVED CLEAN] {domain_name} ({qtype_str}) forwarded to {self.upstream_server} in {elapsed_ms:.1f}ms")
+                logger.debug(f"[RESOLVED CLEAN] {domain_name} ({qtype_str}) forwarded to {active_upstream} in {elapsed_ms:.1f}ms")
 
                 # Extract first resolved IP for logging
                 resolved_ip = None
@@ -171,6 +183,7 @@ class DnsFilteringResolver:
                     try:
                         with self.app.app_context():
                             from services.dns_service import DnsService
+                            from services.failover_service import FailoverService
                             DnsService.log_query(
                                 domain=domain_name,
                                 client_ip=client_ip,
@@ -181,14 +194,39 @@ class DnsFilteringResolver:
                                 category='Forwarded Resolution',
                                 is_sinkholed=False
                             )
+                            FailoverService.record_query_served(is_blocked=False)
                     except Exception as e:
                         logger.debug(f"Failed to record allowed log: {e}")
 
             except Exception as e:
-                logger.error(f"Upstream forwarding error for {domain_name}: {e}")
-                error_resp = dns.message.make_response(query)
-                error_resp.set_rcode(dns.rcode.SERVFAIL)
-                self._socket.sendto(error_resp.to_wire(), client_addr)
+                logger.warning(f"Upstream forwarding error on {active_upstream} for {domain_name}: {e}. Evaluating failover...")
+                recovered = False
+                if self.app:
+                    try:
+                        with self.app.app_context():
+                            from services.failover_service import FailoverService
+                            failover_res = FailoverService.execute_failover(
+                                trigger_reason=f"IN_FLIGHT_UPSTREAM_ERROR_{type(e).__name__}"
+                            )
+                            if failover_res.get('success'):
+                                new_upstream, new_port, _ = FailoverService.get_active_upstream()
+                                backup_response = dns.query.udp(
+                                    q=query,
+                                    where=new_upstream,
+                                    port=new_port,
+                                    timeout=2.5
+                                )
+                                self._socket.sendto(backup_response.to_wire(), client_addr)
+                                recovered = True
+                                FailoverService.record_query_served(is_blocked=False)
+                                logger.info(f"[FAILOVER RECOVERED] {domain_name} answered by backup {new_upstream}")
+                    except Exception as failover_err:
+                        logger.error(f"In-flight failover retry failed: {failover_err}")
+
+                if not recovered:
+                    error_resp = dns.message.make_response(query)
+                    error_resp.set_rcode(dns.rcode.SERVFAIL)
+                    self._socket.sendto(error_resp.to_wire(), client_addr)
 
     def _listen_loop(self):
         """Main UDP server loop"""

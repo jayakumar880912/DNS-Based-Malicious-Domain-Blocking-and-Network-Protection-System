@@ -11,6 +11,7 @@ from models.activity import ActivityLog
 from models.setting import SystemSetting
 from models.digital_twin import VirtualPolicy, SimulationScenario, SimulationRun, SimulationItem
 from models.forensics import SecurityIncident, CounterfactualAnalysis
+from models.failover import DnsResolverConfig, FailoverEvent
 
 __all__ = [
     'User',
@@ -27,5 +28,7 @@ __all__ = [
     'SimulationRun',
     'SimulationItem',
     'SecurityIncident',
-    'CounterfactualAnalysis'
+    'CounterfactualAnalysis',
+    'DnsResolverConfig',
+    'FailoverEvent'
 ]

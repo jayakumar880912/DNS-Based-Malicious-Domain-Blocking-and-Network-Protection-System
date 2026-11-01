@@ -291,3 +291,57 @@ CREATE TABLE IF NOT EXISTS `counterfactual_analyses` (
     INDEX `idx_cf_analysis_incident` (`incident_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 16. DNS Resolvers Pool Table (Self-Recovering Primary & Backup Resolvers)
+CREATE TABLE IF NOT EXISTS `dns_resolvers` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `name` VARCHAR(100) NOT NULL,
+    `ip_address` VARCHAR(64) NOT NULL,
+    `port` INT NOT NULL DEFAULT 53,
+    `protocol` VARCHAR(20) NOT NULL DEFAULT 'UDP',
+    `priority` INT NOT NULL DEFAULT 1,
+    `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `is_primary` BOOLEAN NOT NULL DEFAULT FALSE,
+    `health_status` VARCHAR(30) NOT NULL DEFAULT 'HEALTHY',
+    `latency_ms` FLOAT NOT NULL DEFAULT 0.0,
+    `packet_loss_pct` FLOAT NOT NULL DEFAULT 0.0,
+    `is_verified_secure` BOOLEAN NOT NULL DEFAULT TRUE,
+    `verification_details` TEXT NULL,
+    `last_checked_at` DATETIME NULL,
+    `consecutive_failures` INT NOT NULL DEFAULT 0,
+    `consecutive_successes` INT NOT NULL DEFAULT 0,
+    `total_queries_served` INT NOT NULL DEFAULT 0,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX `idx_resolver_priority` (`priority`),
+    INDEX `idx_resolver_health` (`health_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 17. Failover Events Table (Security-Preserving Failover & Recovery Telemetry)
+CREATE TABLE IF NOT EXISTS `failover_events` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `event_uuid` VARCHAR(64) NOT NULL UNIQUE,
+    `trigger_reason` VARCHAR(100) NOT NULL,
+    `from_resolver_id` INT NULL,
+    `from_resolver_name` VARCHAR(100) NOT NULL,
+    `from_resolver_ip` VARCHAR(64) NOT NULL,
+    `to_resolver_id` INT NULL,
+    `to_resolver_name` VARCHAR(100) NOT NULL,
+    `to_resolver_ip` VARCHAR(64) NOT NULL,
+    `verification_passed` BOOLEAN NOT NULL DEFAULT TRUE,
+    `failover_timestamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `recovery_timestamp` DATETIME NULL,
+    `recovery_duration_seconds` FLOAT NULL,
+    `queries_handled_on_backup` INT NOT NULL DEFAULT 0,
+    `blocked_threats_during_failover` INT NOT NULL DEFAULT 0,
+    `status` VARCHAR(30) NOT NULL DEFAULT 'ACTIVE_FAILOVER',
+    `security_integrity_verified` BOOLEAN NOT NULL DEFAULT TRUE,
+    `incident_summary` TEXT NULL,
+    `audit_report` LONGTEXT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`from_resolver_id`) REFERENCES `dns_resolvers`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`to_resolver_id`) REFERENCES `dns_resolvers`(`id`) ON DELETE SET NULL,
+    INDEX `idx_failover_uuid` (`event_uuid`),
+    INDEX `idx_failover_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+

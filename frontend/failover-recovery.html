@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Self-Recovering DNS Failover &amp; Recovery &mdash; AegisDNS Network Protection</title>
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'/></svg>">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="css/cyber-theme.css">
+  <link rel="stylesheet" href="css/dashboard-layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Mobile Backdrop -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+    <!-- Collapsible Sidebar -->
+    <aside id="appSidebar" class="sidebar">
+      <div class="sidebar-header">
+        <a href="dashboard.html" class="sidebar-brand">
+          <div class="sidebar-brand-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="sidebar-brand-text">Aegis<span class="text-cyan">DNS</span></div>
+            <div class="sidebar-brand-sub">Network Shield</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="sidebar-nav-container">
+        <div class="sidebar-nav-title">Operations Console</div>
+        <ul class="sidebar-nav-list">
+          <li class="sidebar-nav-item">
+            <a href="dashboard.html" class="nav-link">
+              <i class="fa-solid fa-gauge-high nav-icon"></i>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="domain-checker.html" class="nav-link">
+              <i class="fa-solid fa-shield-virus nav-icon"></i>
+              <span class="nav-text">Domain Checker</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="dns-monitoring.html" class="nav-link">
+              <i class="fa-solid fa-network-wired nav-icon"></i>
+              <span class="nav-text">DNS Monitoring</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="threat-detection.html" class="nav-link">
+              <i class="fa-solid fa-triangle-exclamation nav-icon"></i>
+              <span class="nav-text">Threat Detection</span>
+              <span class="sidebar-badge badge-malicious">8 Active</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="blocked-domains.html" class="nav-link">
+              <i class="fa-solid fa-ban nav-icon"></i>
+              <span class="nav-text">Blocked Domains</span>
+              <span class="sidebar-badge badge-info">Sinkhole</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="activity-logs.html" class="nav-link">
+              <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+              <span class="nav-text">Activity Logs</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="digital-twin.html" class="nav-link">
+              <i class="fa-solid fa-brain nav-icon"></i>
+              <span class="nav-text">Policy Digital Twin</span>
+              <span class="sidebar-badge badge-info">AI Sim</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="attack-replay.html" class="nav-link">
+              <i class="fa-solid fa-timeline nav-icon"></i>
+              <span class="nav-text">Attack Replay &amp; Forensics</span>
+              <span class="sidebar-badge badge-malicious">Replay</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="failover-recovery.html" class="nav-link active">
+              <i class="fa-solid fa-arrows-rotate nav-icon"></i>
+              <span class="nav-text">Failover &amp; Recovery</span>
+              <span class="sidebar-badge badge-safe">Self-Healing</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="sidebar-nav-title mt-4">Configuration</div>
+        <ul class="sidebar-nav-list">
+          <li class="sidebar-nav-item">
+            <a href="settings.html" class="nav-link">
+              <i class="fa-solid fa-gear nav-icon"></i>
+              <span class="nav-text">Settings</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="#" class="nav-link action-logout text-danger">
+              <i class="fa-solid fa-right-from-bracket nav-icon text-danger"></i>
+              <span class="nav-text">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Sidebar Status Mini-Card -->
+      <div class="sidebar-footer">
+        <div class="protection-mini-card">
+          <div class="protection-mini-status">
+            <span class="protection-mini-label">FAILOVER ENGINE</span>
+            <span class="status-pulse pulse-safe"></span>
+          </div>
+          <div class="fw-bold text-cyan font-mono" style="font-size: 0.8rem;">
+            SELF-HEALING ACTIVE
+          </div>
+          <div class="protection-mini-metrics mt-1">
+            <span>Primary: 1.1.1.1</span>
+            <span class="text-safe font-mono">Backups: 2 Verified</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      
+      <!-- Topbar Header -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="sidebarToggleBtn" class="btn-sidebar-toggle" title="Toggle Sidebar">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          
+          <div class="topbar-status-ticker d-none d-md-flex">
+            <span class="status-pulse pulse-safe"></span>
+            <span class="text-cyan fw-semibold">SELF-RECOVERING DNS FAILOVER</span>
+            <span class="text-dim">|</span>
+            <span class="text-muted font-mono">Canary Verification Engine</span>
+            <span class="text-dim">|</span>
+            <span class="text-safe font-mono">Security-Preserving Guarantee</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="header-action-group">
+            <button id="btnProbeAll" class="btn btn-outline-cyan btn-sm">
+              <i class="fa-solid fa-stethoscope me-1"></i> Probe All Resolvers
+            </button>
+            <button id="btnQuickRestore" class="btn btn-outline-success btn-sm">
+              <i class="fa-solid fa-rotate-left me-1"></i> Failback to Primary
+            </button>
+          </div>
+
+          <div class="user-profile-menu">
+            <div class="user-avatar" id="topbarAvatar">SO</div>
+            <div class="user-meta d-none d-sm-block">
+              <span class="user-name" id="topbarUsername">SecOps Administrator</span>
+              <span class="user-role" id="topbarUserRole">Cybersecurity Lead</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Body Container -->
+      <main class="content-container">
+
+        <!-- System Status Banner -->
+        <div id="systemStateBanner" class="alert-cyber alert-cyan d-flex flex-wrap align-items-center justify-content-between p-3 mb-4 rounded-3 border">
+          <div class="d-flex align-items-center gap-3">
+            <div id="stateBannerIcon" class="state-icon-box text-cyan fs-3">
+              <i class="fa-solid fa-shield-heart fa-beat"></i>
+            </div>
+            <div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold font-mono" id="stateBannerTitle">SYSTEM STATE: NORMAL PRIMARY RESOLVER ACTIVE</span>
+                <span id="stateBadge" class="badge bg-success font-mono">HEALTHY</span>
+              </div>
+              <div class="text-muted small mt-1" id="stateBannerDesc">
+                Active Upstream: <span class="text-cyan font-mono fw-bold" id="stateActiveIp">1.1.1.1:53</span> (Primary Cloudflare DNS) &bull; 
+                Canary Domain: <span class="text-light font-mono">cloudflare.com</span> &bull; 
+                Anti-Flapping Threshold: <span class="text-safe font-mono">3 Checks</span>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+            <div class="security-guarantee-pill px-3 py-1 rounded-pill bg-dark border border-cyan text-cyan small font-mono">
+              <i class="fa-solid fa-lock me-1"></i> Security-Preserving: <span class="text-safe fw-bold">100% SINKHOLE ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric KPI Cards Row -->
+        <div class="row g-3 mb-4">
+          <!-- Card 1: Active Resolver -->
+          <div class="col-xl-3 col-md-6">
+            <div class="cyber-card metric-card">
+              <div class="metric-header">
+                <span class="metric-title">ACTIVE UPSTREAM</span>
+                <span class="badge bg-primary font-mono" id="kpiResolverRole">PRIMARY</span>
+              </div>
+              <div class="metric-value text-cyan font-mono" id="kpiActiveResolverIp">1.1.1.1:53</div>
+              <div class="metric-subtitle">
+                <span id="kpiActiveResolverName">Primary Cloudflare DNS</span>
+                <span class="float-end text-safe font-mono" id="kpiActiveLatency">12.4 ms</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Canary Verification & Integrity -->
+          <div class="col-xl-3 col-md-6">
+            <div class="cyber-card metric-card">
+              <div class="metric-header">
+                <span class="metric-title">CANARY INTEGRITY</span>
+                <span class="badge bg-success font-mono" id="kpiIntegrityBadge">VERIFIED</span>
+              </div>
+              <div class="metric-value text-safe font-mono" id="kpiIntegrityStatus">SECURE</div>
+              <div class="metric-subtitle">
+                <span>Anti-Poisoning Check</span>
+                <span class="float-end text-cyan font-mono" id="kpiBackupCount">2/2 Backups Safe</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Mean Time to Recovery (MTTR) -->
+          <div class="col-xl-3 col-md-6">
+            <div class="cyber-card metric-card">
+              <div class="metric-header">
+                <span class="metric-title">MEAN TIME TO RECOVERY</span>
+                <span class="badge bg-info font-mono">RESILIENCY</span>
+              </div>
+              <div class="metric-value text-warning font-mono" id="kpiMttrValue">42.6 s</div>
+              <div class="metric-subtitle">
+                <span>Total Failovers: <strong id="kpiTotalFailovers" class="text-light">3</strong></span>
+                <span class="float-end text-safe font-mono" id="kpiMttrRating">EXEMPLARY</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Security-Preserving Threat Enforcement -->
+          <div class="col-xl-3 col-md-6">
+            <div class="cyber-card metric-card">
+              <div class="metric-header">
+                <span class="metric-title">SECURITY PRESERVATION</span>
+                <span class="badge bg-success font-mono">ZERO TRUST</span>
+              </div>
+              <div class="metric-value text-safe font-mono" id="kpiProtectionRate">100.0%</div>
+              <div class="metric-subtitle">
+                <span>Threats Sinkholed on Backup: <strong id="kpiBackupThreats" class="text-malicious">11</strong></span>
+                <span class="float-end text-muted font-mono">0 Leaks</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resolver Pool Grid -->
+        <div class="cyber-card mb-4">
+          <div class="card-header-flex d-flex align-items-center justify-content-between p-3 border-bottom border-dark">
+            <div>
+              <h5 class="m-0 text-cyan"><i class="fa-solid fa-server me-2"></i> Configured DNS Resolver Pool</h5>
+              <div class="text-muted small">Primary and Backup Resolvers evaluated continuously via Canary Probes</div>
+            </div>
+            <div class="d-flex gap-2">
+              <button id="btnOpenAddResolver" class="btn btn-outline-cyan btn-sm">
+                <i class="fa-solid fa-plus me-1"></i> Add Custom Resolver
+              </button>
+            </div>
+          </div>
+
+          <div class="p-3">
+            <div class="row g-3" id="resolverCardsContainer">
+              <!-- Dynamically populated resolver cards -->
+              <div class="col-12 text-center py-4 text-muted">
+                <i class="fa-solid fa-circle-notch fa-spin me-2"></i> Loading DNS resolver telemetry...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controlled Outage Simulation Sandbox & Drill Execution -->
+        <div class="cyber-card mb-4">
+          <div class="card-header-flex d-flex align-items-center justify-content-between p-3 border-bottom border-dark">
+            <div>
+              <h5 class="m-0 text-warning"><i class="fa-solid fa-flask-vial me-2"></i> Controlled Failover Drill &amp; Simulation Sandbox</h5>
+              <div class="text-muted small">Test primary outage, canary verification, and safe recovery in an isolated sandbox environment</div>
+            </div>
+            <span class="badge bg-warning text-dark font-mono"><i class="fa-solid fa-shield-virus me-1"></i> Zero Live Mutation</span>
+          </div>
+
+          <div class="p-3">
+            <div class="row g-3 align-items-center mb-3">
+              <div class="col-md-5">
+                <label class="form-label text-muted small fw-bold">SELECT OUTAGE DRILL SCENARIO</label>
+                <select id="drillTypeSelect" class="form-select bg-dark text-light border-secondary">
+                  <option value="TIMEOUT_SIMULATION">Primary Connection Timeout &bull; Blackhole Packet Loss (2.5s)</option>
+                  <option value="SERVFAIL_STORM">Consecutive Upstream SERVFAIL Failure Cascade</option>
+                  <option value="POISONED_BACKUP_TEST">Anti-Poisoning Drill &bull; Detect Rogue RFC1918 Hijacking Backup</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted small fw-bold">BACKUP RESOLVER TARGET</label>
+                <input type="text" class="form-control bg-dark text-light border-secondary font-mono" value="8.8.8.8 (Secondary Google Public DNS)" readonly>
+              </div>
+              <div class="col-md-3 d-flex gap-2 align-items-end mt-3 mt-md-0">
+                <button id="btnLaunchDrill" class="btn btn-warning w-100 fw-bold">
+                  <i class="fa-solid fa-play me-1"></i> Launch Outage Drill
+                </button>
+              </div>
+            </div>
+
+            <!-- Simulation Live Step-by-Step Execution Timeline -->
+            <div id="drillTimelineContainer" class="p-3 rounded bg-dark border border-secondary mt-3 d-none">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-cyan fw-bold font-mono"><i class="fa-solid fa-microchip me-2"></i> LIVE FAILOVER &amp; RECOVERY EXECUTION TRACE</span>
+                <span id="drillStatusBadge" class="badge bg-info font-mono">SIMULATION EXECUTING</span>
+              </div>
+              
+              <div class="timeline-steps" id="drillStepList">
+                <!-- Dynamically populated drill steps -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Failover Incidents & Historical Audit Log Table -->
+        <div class="cyber-card mb-4">
+          <div class="card-header-flex d-flex align-items-center justify-content-between p-3 border-bottom border-dark">
+            <div>
+              <h5 class="m-0 text-light"><i class="fa-solid fa-clock-rotate-left me-2 text-cyan"></i> Failover &amp; Recovery Incident History</h5>
+              <div class="text-muted small">Historical failover events, MTTR telemetry, and security-preserving audit verification</div>
+            </div>
+            <button id="btnRefreshEvents" class="btn btn-outline-secondary btn-sm">
+              <i class="fa-solid fa-arrows-rotate"></i> Refresh History
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-cyber table-hover align-middle mb-0" id="failoverEventsTable">
+              <thead>
+                <tr>
+                  <th>Event UUID</th>
+                  <th>Timestamp</th>
+                  <th>Trigger Cause</th>
+                  <th>From Resolver</th>
+                  <th>To Resolver</th>
+                  <th>MTTR Duration</th>
+                  <th>Queries on Backup</th>
+                  <th>Security Preserved</th>
+                  <th>Status</th>
+                  <th>Audit Report</th>
+                </tr>
+              </thead>
+              <tbody id="failoverEventsBody">
+                <tr>
+                  <td colspan="10" class="text-center py-4 text-muted">
+                    <i class="fa-solid fa-circle-notch fa-spin me-2"></i> Loading incident records...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Add Custom Resolver -->
+  <div class="modal fade" id="addResolverModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-navy border border-cyan text-light">
+        <div class="modal-header border-bottom border-dark">
+          <h5 class="modal-title text-cyan"><i class="fa-solid fa-plus-circle me-2"></i> Add Backup DNS Resolver</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addResolverForm">
+            <div class="mb-3">
+              <label class="form-label text-muted small fw-bold">RESOLVER NAME</label>
+              <input type="text" id="newResolverName" class="form-control bg-dark text-light border-secondary" placeholder="e.g., OpenDNS Home Shield" required>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-8">
+                <label class="form-label text-muted small fw-bold">IP ADDRESS</label>
+                <input type="text" id="newResolverIp" class="form-control bg-dark text-light border-secondary font-mono" placeholder="208.67.222.222" required>
+              </div>
+              <div class="col-4">
+                <label class="form-label text-muted small fw-bold">PORT</label>
+                <input type="number" id="newResolverPort" class="form-control bg-dark text-light border-secondary font-mono" value="53" required>
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label text-muted small fw-bold">PRIORITY (Rank)</label>
+                <input type="number" id="newResolverPriority" class="form-control bg-dark text-light border-secondary font-mono" value="4" min="2" max="10" required>
+                <div class="form-text text-muted small">1 is reserved for Primary</div>
+              </div>
+              <div class="col-6">
+                <label class="form-label text-muted small fw-bold">PROTOCOL</label>
+                <select id="newResolverProtocol" class="form-select bg-dark text-light border-secondary">
+                  <option value="UDP">UDP (Standard DNS)</option>
+                  <option value="TCP">TCP</option>
+                  <option value="DoH">DoH (DNS-over-HTTPS)</option>
+                </select>
+              </div>
+            </div>
+            <div class="alert alert-info py-2 small bg-dark border-info text-cyan">
+              <i class="fa-solid fa-shield me-1"></i> A canary integrity probe will automatically verify this resolver before it is accepted into the active pool.
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-top border-dark">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" id="btnSaveResolver" class="btn btn-cyan fw-bold">
+            <i class="fa-solid fa-check me-1"></i> Verify &amp; Add Resolver
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Comprehensive Forensic Recovery Report -->
+  <div class="modal fade" id="recoveryReportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content bg-navy border border-cyan text-light">
+        <div class="modal-header border-bottom border-dark">
+          <div>
+            <h5 class="modal-title text-cyan" id="reportModalTitle"><i class="fa-solid fa-file-shield me-2"></i> DNS Failover &amp; Recovery Audit Report</h5>
+            <div class="text-muted small" id="reportModalSubtitle">Event UUID: FLV-XXXX</div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4" id="reportModalContent">
+          <!-- Dynamically populated report content -->
+        </div>
+        <div class="modal-footer border-top border-dark">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-cyan fw-bold" onclick="window.print()">
+            <i class="fa-solid fa-print me-1"></i> Print / Export PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- AegisDNS Scripts -->
+  <script src="js/mock-data.js"></script>
+  <script src="js/api-service.js"></script>
+  <script src="js/failover-recovery.js"></script>
+</body>
+</html>
+

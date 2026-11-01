@@ -817,6 +817,72 @@ const CyberMockData = {
         ]
       }
     ]
+  },
+
+  // Failover & Recovery Mock Data
+  failoverData: {
+    systemState: 'NORMAL_PRIMARY',
+    activeResolver: {
+      id: 1,
+      name: 'Primary Cloudflare DNS',
+      ip: '1.1.1.1',
+      port: 53,
+      is_primary: true
+    },
+    primaryHealthy: true,
+    backupAvailable: true,
+    securityPreserved: true,
+    metrics: {
+      totalFailoverEvents: 3,
+      recoveredEvents: 3,
+      averageMttrSeconds: 42.6,
+      activeFailoverQueries: 0,
+      activeBlockedThreats: 0
+    },
+    resolvers: [
+      {
+        id: 1,
+        name: 'Primary Cloudflare DNS',
+        ipAddress: '1.1.1.1',
+        port: 53,
+        protocol: 'UDP',
+        priority: 1,
+        isPrimary: true,
+        isActive: true,
+        healthStatus: 'HEALTHY',
+        latencyMs: 12.4,
+        isVerifiedSecure: true,
+        verificationDetails: 'Canary probe verified: Valid A records, RCODE NOERROR.'
+      },
+      {
+        id: 2,
+        name: 'Secondary Google Public DNS',
+        ipAddress: '8.8.8.8',
+        port: 53,
+        protocol: 'UDP',
+        priority: 2,
+        isPrimary: false,
+        isActive: true,
+        healthStatus: 'HEALTHY',
+        latencyMs: 14.8,
+        isVerifiedSecure: true,
+        verificationDetails: 'Backup pre-verified: Valid A records, RCODE NOERROR.'
+      },
+      {
+        id: 3,
+        name: 'Tertiary Quad9 Secure DNS',
+        ipAddress: '9.9.9.9',
+        port: 53,
+        protocol: 'UDP',
+        priority: 3,
+        isPrimary: false,
+        isActive: true,
+        healthStatus: 'HEALTHY',
+        latencyMs: 18.2,
+        isVerifiedSecure: true,
+        verificationDetails: 'Backup pre-verified: Threat-blocking upstream verified.'
+      }
+    ]
   }
 };
 

@@ -13,6 +13,7 @@ from routes.settings import settings_bp
 from routes.activity import activity_bp
 from routes.digital_twin import digital_twin_bp
 from routes.forensics import forensics_bp
+from routes.failover import failover_bp
 
 
 def register_routes(app):
@@ -27,4 +28,5 @@ def register_routes(app):
     app.register_blueprint(activity_bp)
     app.register_blueprint(digital_twin_bp)
     app.register_blueprint(forensics_bp)
+    app.register_blueprint(failover_bp)
 
