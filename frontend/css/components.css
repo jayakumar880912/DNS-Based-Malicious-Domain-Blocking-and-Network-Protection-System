@@ -621,3 +621,188 @@
   transform: scale(1.2);
 }
 
+/* ==========================================================================
+   Attack Replay & Counterfactual Forensics Components
+   ========================================================================== */
+
+/* Incident Selection Cards */
+.incident-card {
+  background: rgba(11, 20, 39, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.4rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.incident-card:hover {
+  border-color: rgba(255, 51, 102, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 51, 102, 0.15);
+}
+
+.incident-card.active {
+  background: linear-gradient(135deg, rgba(35, 12, 25, 0.9) 0%, rgba(14, 18, 38, 0.95) 100%);
+  border-color: var(--color-malicious);
+  box-shadow: 0 0 25px rgba(255, 51, 102, 0.25), inset 0 0 15px rgba(255, 51, 102, 0.08);
+}
+
+.incident-card.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--color-malicious);
+}
+
+/* Replay Timeline Controls Bar */
+.replay-controls-bar {
+  background: rgba(6, 11, 23, 0.85);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Kill-Chain Visual Stepper */
+.killchain-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 1.5rem 0;
+  padding: 0 1rem;
+}
+
+.killchain-stepper::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 2rem;
+  right: 2rem;
+  height: 2px;
+  background: rgba(148, 163, 184, 0.2);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.killchain-step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.killchain-step-node {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #080d1a;
+  border: 2px solid #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.killchain-step:hover .killchain-step-node {
+  border-color: var(--cyan-primary);
+  color: var(--cyan-primary);
+  transform: scale(1.1);
+}
+
+.killchain-step.completed .killchain-step-node {
+  border-color: var(--color-malicious);
+  background: rgba(255, 51, 102, 0.15);
+  color: var(--color-malicious);
+}
+
+.killchain-step.active .killchain-step-node {
+  border-color: var(--cyan-primary);
+  background: rgba(0, 240, 255, 0.25);
+  color: #ffffff;
+  box-shadow: 0 0 20px var(--cyan-primary);
+  transform: scale(1.2);
+}
+
+.killchain-step.intercepted .killchain-step-node {
+  border-color: var(--color-safe);
+  background: rgba(16, 185, 129, 0.25);
+  color: var(--color-safe);
+  box-shadow: 0 0 20px var(--color-safe);
+}
+
+.killchain-step-label {
+  margin-top: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  text-align: center;
+  max-width: 90px;
+}
+
+.killchain-step.active .killchain-step-label {
+  color: var(--cyan-primary);
+  font-weight: 700;
+}
+
+/* Counterfactual Side-by-Side Cards */
+.cf-comparison-box {
+  background: rgba(8, 14, 28, 0.85);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem 1.4rem;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.cf-comparison-box:hover {
+  border-color: rgba(0, 240, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.cf-historical-side {
+  border-left: 3px solid var(--color-malicious);
+}
+
+.cf-counterfactual-side {
+  border-left: 3px solid var(--color-safe);
+}
+
+.badge-prevented {
+  background: rgba(16, 185, 129, 0.18);
+  color: var(--color-safe);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.badge-missed {
+  background: rgba(255, 51, 102, 0.18);
+  color: var(--color-malicious);
+  border: 1px solid rgba(255, 51, 102, 0.4);
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+

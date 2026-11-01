@@ -529,6 +529,294 @@ const CyberMockData = {
         domainCount: 24
       }
     ]
+  },
+
+  // Attack Replay & Counterfactual Security Forensics Mock Data
+  forensics: {
+    incidents: [
+      {
+        id: 1,
+        incidentCode: 'INC-8821',
+        title: 'APT-29 SolarFlare Phishing & Multi-Stage C2 Infiltration',
+        threatActor: 'APT-29 / CozyBear (State-Sponsored)',
+        severity: 'CRITICAL',
+        attackVector: 'Spearphishing Email -> Staged C2 Beaconing -> Lateral Lookup',
+        targetSystem: 'Finance & Executive Workstation Subnet (192.168.1.100-150)',
+        dwellTimeMinutes: 48,
+        totalEvents: 6,
+        originalOutcome: 'Breach Occurred & C2 Channel Established',
+        summary: 'Targeted multi-stage advanced threat campaign. The attacker bypassed initial lexical checks using deceptive branding on .online, established encrypted C2 beaconing, and performed internal lateral reconnaissance before late manual sinkholing.',
+        impactDetails: 'Initial access credentials harvested; active C2 beacon sustained for 48 minutes; 14 internal host records queried.',
+        timelineEvents: [
+          {
+            step: 1,
+            offsetSec: 0,
+            domain: 'update-check.microsoft-telemetry.cc',
+            queryType: 'A',
+            clientIp: '192.168.1.115',
+            groundTruth: 'SUSPICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Reconnaissance',
+            threatDetails: 'Subtle deceptive brand spoofing. Unverified on public feeds during early probe.',
+            historicalImpact: 'Attacker verified target subnet resolves external DNS without active challenge.'
+          },
+          {
+            step: 2,
+            offsetSec: 180,
+            domain: 'azure-sync-ad-connector.online',
+            queryType: 'A',
+            clientIp: '192.168.1.115',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Weaponized Delivery / Phishing',
+            threatDetails: 'Credential harvesting landing page masquerading as Azure AD single sign-on.',
+            historicalImpact: 'Victim workstation downloaded weaponized dropper payload.'
+          },
+          {
+            step: 3,
+            offsetSec: 620,
+            domain: 'x8k2m9v4q1.biz',
+            queryType: 'A',
+            clientIp: '192.168.1.115',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SUSPICIOUS',
+            killChainPhase: 'DGA Secondary Beacon',
+            threatDetails: 'Pseudorandom DGA rendezvous domain with Shannon entropy 3.84.',
+            historicalImpact: 'Payload obtained secondary dynamic IP controller address.'
+          },
+          {
+            step: 4,
+            offsetSec: 1440,
+            domain: 'c2-trojan-controller-sync.net',
+            queryType: 'A',
+            clientIp: '192.168.1.115',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SUSPICIOUS',
+            killChainPhase: 'C2 Channel Establishment',
+            threatDetails: 'Cobalt Strike malleable C2 interactive session initiation.',
+            historicalImpact: 'Active shell access established; operator commenced host enumeration.'
+          },
+          {
+            step: 5,
+            offsetSec: 2100,
+            domain: 'corp-dc01-active-directory.local',
+            queryType: 'SRV',
+            clientIp: '192.168.1.115',
+            groundTruth: 'BENIGN',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Lateral Reconnaissance',
+            threatDetails: 'Internal Active Directory service record query executed by threat agent.',
+            historicalImpact: 'Primary domain controller located on corporate network.'
+          },
+          {
+            step: 6,
+            offsetSec: 2880,
+            domain: 'stage2-payload-exfil.top',
+            queryType: 'A',
+            clientIp: '192.168.1.115',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'BLOCKED',
+            originalVerdict: 'MALICIOUS',
+            killChainPhase: 'Exfiltration Staging',
+            threatDetails: 'Known malicious infostealer endpoint; matched late signature feed update.',
+            historicalImpact: 'Late containment: Query sinkholed to 0.0.0.0, but credential harvesting had already completed.'
+          }
+        ]
+      },
+      {
+        id: 2,
+        incidentCode: 'INC-8822',
+        title: 'DarkSide Ransomware Pre-Encryption Outbreak',
+        threatActor: 'DarkSide Ransomware Syndicate',
+        severity: 'CRITICAL',
+        attackVector: 'Malvertising Drive-by -> Dynamic DNS Key Exchange -> Volume Shadow Drop',
+        targetSystem: 'Billing & Payroll Database Host (192.168.1.142)',
+        dwellTimeMinutes: 34,
+        totalEvents: 6,
+        originalOutcome: 'Partial Subnet Encryption Before Containment',
+        summary: 'High-velocity ransomware deployment. Initial malicious redirect on .top was allowed due to permissive TLD rules. The malware established asymmetric key exchange with dynamic DNS controllers, detonating encryption across 3 networked shared drives before late sinkholing.',
+        impactDetails: '3 shared network folders encrypted; backup shadow copies targeted; incident response engaged after user ticket.',
+        timelineEvents: [
+          {
+            step: 1,
+            offsetSec: 0,
+            domain: 'secure-document-portal-view.top',
+            queryType: 'A',
+            clientIp: '192.168.1.142',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Initial Delivery',
+            threatDetails: 'Malvertising lure hosted on high-abuse .top TLD.',
+            historicalImpact: 'Browser silently downloaded Stage 1 loader script.'
+          },
+          {
+            step: 2,
+            offsetSec: 240,
+            domain: 'malware-payload-stage1.biz',
+            queryType: 'A',
+            clientIp: '192.168.1.142',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Payload Download',
+            threatDetails: 'Encrypted binary dropper download endpoint.',
+            historicalImpact: 'Ransomware executable written to %APPDATA% directory.'
+          },
+          {
+            step: 3,
+            offsetSec: 780,
+            domain: 'p9o8i7u6y5t4r3.biz',
+            queryType: 'A',
+            clientIp: '192.168.1.142',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SUSPICIOUS',
+            killChainPhase: 'Key Exchange C2',
+            threatDetails: 'High-entropy algorithmic controller negotiated master encryption public key.',
+            historicalImpact: 'Symmetric AES-256 session key generated and bound to local machine GUID.'
+          },
+          {
+            step: 4,
+            offsetSec: 1200,
+            domain: 'ransomware-negotiation-portal.cc',
+            queryType: 'A',
+            clientIp: '192.168.1.142',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SUSPICIOUS',
+            killChainPhase: 'Ransom Note Staging',
+            threatDetails: 'TOR proxy negotiation mirror.',
+            historicalImpact: 'Ransom instructions rendered to victim desktop.'
+          },
+          {
+            step: 5,
+            offsetSec: 1680,
+            domain: 'dc-backup-controller.lan',
+            queryType: 'A',
+            clientIp: '192.168.1.142',
+            groundTruth: 'BENIGN',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Internal Shared Storage',
+            threatDetails: 'Legitimate internal storage volume mapped via SMB.',
+            historicalImpact: 'File encryption initiated across local drives and network shares.'
+          },
+          {
+            step: 6,
+            offsetSec: 2040,
+            domain: 'darkside-drop-vault.ru',
+            queryType: 'A',
+            clientIp: '192.168.1.142',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'BLOCKED',
+            originalVerdict: 'MALICIOUS',
+            killChainPhase: 'Exfiltration Channel',
+            threatDetails: 'Targeted by emergency SecOps sinkhole policy rule.',
+            historicalImpact: 'Exfiltration halted at Step 6, but encryption damage had already occurred.'
+          }
+        ]
+      },
+      {
+        id: 3,
+        incidentCode: 'INC-8823',
+        title: 'Covert DNS Tunneling & Customer Data Exfiltration',
+        threatActor: 'FIN7 / Carbanak Financial Syndicate',
+        severity: 'HIGH',
+        attackVector: 'Base64 Subdomain DNS Tunneling (Slow & Low)',
+        targetSystem: 'Point-of-Sale / E-Commerce Backend (192.168.1.205)',
+        dwellTimeMinutes: 65,
+        totalEvents: 6,
+        originalOutcome: '14,200 Customer Payment Records Exfiltrated',
+        summary: 'Covert low-frequency data exfiltration leveraging encoded DNS queries. Because standard DNS packet filtering did not enforce subdomain depth or character entropy thresholds on subdomains, 18 sequential chunks bypassed detection until firewall netflow alerts triggered.',
+        impactDetails: 'Payment card tokens and customer PII exfiltrated in TXT and A query subdomains.',
+        timelineEvents: [
+          {
+            step: 1,
+            offsetSec: 0,
+            domain: 'tunnel-gateway.dns-tunnel-drop.xyz',
+            queryType: 'TXT',
+            clientIp: '192.168.1.205',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Tunnel Handshake',
+            threatDetails: 'Initial tunneling protocol sync packet with Base64 signature.',
+            historicalImpact: 'Tunnel established; threat agent verified bidirectional DNS encoding.'
+          },
+          {
+            step: 2,
+            offsetSec: 420,
+            domain: 'dG9rZW4xMjM0NTY3OA.tunnel-gateway.dns-tunnel-drop.xyz',
+            queryType: 'A',
+            clientIp: '192.168.1.205',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Data Exfiltration (Chunk 01)',
+            threatDetails: 'Base64 encoded customer record batch 1. Entropy: 4.15.',
+            historicalImpact: '2,400 records exfiltrated covertly.'
+          },
+          {
+            step: 3,
+            offsetSec: 960,
+            domain: 'cGFzc3dvcmQxMjM0NTY.tunnel-gateway.dns-tunnel-drop.xyz',
+            queryType: 'A',
+            clientIp: '192.168.1.205',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Data Exfiltration (Chunk 02)',
+            threatDetails: 'Base64 encoded customer record batch 2. Entropy: 4.22.',
+            historicalImpact: '3,100 additional records leaked.'
+          },
+          {
+            step: 4,
+            offsetSec: 1680,
+            domain: 'Y3JjMTZzdW1jaGVja2RhdGE.tunnel-gateway.dns-tunnel-drop.xyz',
+            queryType: 'A',
+            clientIp: '192.168.1.205',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Data Exfiltration (Chunk 03)',
+            threatDetails: 'Base64 encoded customer record batch 3. Entropy: 4.18.',
+            historicalImpact: '4,200 records leaked.'
+          },
+          {
+            step: 5,
+            offsetSec: 2520,
+            domain: 'ZW5jcnlwdGVkYmF0Y2gwNA.tunnel-gateway.dns-tunnel-drop.xyz',
+            queryType: 'A',
+            clientIp: '192.168.1.205',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'ALLOWED',
+            originalVerdict: 'SAFE',
+            killChainPhase: 'Data Exfiltration (Chunk 04)',
+            threatDetails: 'Base64 encoded customer record batch 4. Entropy: 4.19.',
+            historicalImpact: '4,500 records leaked (Cumulative: 14,200).'
+          },
+          {
+            step: 6,
+            offsetSec: 3900,
+            domain: 'tunnel-gateway.dns-tunnel-drop.xyz',
+            queryType: 'A',
+            clientIp: '192.168.1.205',
+            groundTruth: 'MALICIOUS',
+            originalAction: 'BLOCKED',
+            originalVerdict: 'MALICIOUS',
+            killChainPhase: 'Emergency Containment',
+            threatDetails: 'Manual administrator domain sinkhole rule applied after firewall alert.',
+            historicalImpact: 'Tunnel disconnected after 65 minutes. Breach had already transpired.'
+          }
+        ]
+      }
+    ]
   }
 };
 

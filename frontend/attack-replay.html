@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attack Replay &amp; Counterfactual Forensics &mdash; AegisDNS Network Protection</title>
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'/></svg>">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="css/cyber-theme.css">
+  <link rel="stylesheet" href="css/dashboard-layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Mobile Backdrop -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+    <!-- Collapsible Sidebar -->
+    <aside id="appSidebar" class="sidebar">
+      <div class="sidebar-header">
+        <a href="dashboard.html" class="sidebar-brand">
+          <div class="sidebar-brand-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="sidebar-brand-text">Aegis<span class="text-cyan">DNS</span></div>
+            <div class="sidebar-brand-sub">Network Shield</div>
+          </div>
+        </a>
+      </div>
+
+      <div class="sidebar-nav-container">
+        <div class="sidebar-nav-title">Operations Console</div>
+        <ul class="sidebar-nav-list">
+          <li class="sidebar-nav-item">
+            <a href="dashboard.html" class="nav-link">
+              <i class="fa-solid fa-gauge-high nav-icon"></i>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="domain-checker.html" class="nav-link">
+              <i class="fa-solid fa-shield-virus nav-icon"></i>
+              <span class="nav-text">Domain Checker</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="dns-monitoring.html" class="nav-link">
+              <i class="fa-solid fa-network-wired nav-icon"></i>
+              <span class="nav-text">DNS Monitoring</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="threat-detection.html" class="nav-link">
+              <i class="fa-solid fa-triangle-exclamation nav-icon"></i>
+              <span class="nav-text">Threat Detection</span>
+              <span class="sidebar-badge badge-malicious">8 Active</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="blocked-domains.html" class="nav-link">
+              <i class="fa-solid fa-ban nav-icon"></i>
+              <span class="nav-text">Blocked Domains</span>
+              <span class="sidebar-badge badge-info">Sinkhole</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="activity-logs.html" class="nav-link">
+              <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+              <span class="nav-text">Activity Logs</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="digital-twin.html" class="nav-link">
+              <i class="fa-solid fa-brain nav-icon"></i>
+              <span class="nav-text">Policy Digital Twin</span>
+              <span class="sidebar-badge badge-info">AI Sim</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="attack-replay.html" class="nav-link active">
+              <i class="fa-solid fa-timeline nav-icon"></i>
+              <span class="nav-text">Attack Replay &amp; Forensics</span>
+              <span class="sidebar-badge badge-malicious">Replay</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="sidebar-nav-title mt-4">Configuration</div>
+        <ul class="sidebar-nav-list">
+          <li class="sidebar-nav-item">
+            <a href="settings.html" class="nav-link">
+              <i class="fa-solid fa-gear nav-icon"></i>
+              <span class="nav-text">Settings</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="#" class="nav-link action-logout text-danger">
+              <i class="fa-solid fa-right-from-bracket nav-icon text-danger"></i>
+              <span class="nav-text">Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Sidebar Status Mini-Card -->
+      <div class="sidebar-footer">
+        <div class="protection-mini-card">
+          <div class="protection-mini-status">
+            <span class="protection-mini-label">FORENSIC ENGINE</span>
+            <span class="status-pulse pulse-safe"></span>
+          </div>
+          <div class="fw-bold text-cyan font-mono" style="font-size: 0.8rem;">
+            TIME MACHINE ACTIVE
+          </div>
+          <div class="protection-mini-metrics mt-1">
+            <span>Historical Incidents: 3</span>
+            <span class="text-safe font-mono">Zero Live Impact</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      
+      <!-- Topbar Header -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="sidebarToggleBtn" class="btn-sidebar-toggle" title="Toggle Sidebar">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          
+          <div class="topbar-status-ticker d-none d-md-flex">
+            <span class="status-pulse pulse-safe"></span>
+            <span class="text-malicious fw-semibold">ATTACK REPLAY &amp; FORENSICS</span>
+            <span class="text-dim">|</span>
+            <span class="text-muted font-mono">Historical Kill-Chain Telemetry</span>
+            <span class="text-dim">|</span>
+            <span class="text-safe font-mono">Counterfactual "What-If" Analysis</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Quick Protection Toggle Pill -->
+          <div id="protectionQuickToggle" class="protection-quick-toggle" title="Toggle Network Protection">
+            <span class="status-pulse pulse-safe"></span>
+            <span class="toggle-label text-safe">PROTECTED</span>
+          </div>
+
+          <div class="dropdown">
+            <div class="user-profile-menu dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="user-avatar">
+                <i class="fa-solid fa-user-shield"></i>
+              </div>
+              <div class="d-none d-sm-block text-start">
+                <div id="topbarUserName" class="user-name">SecOps Lead</div>
+                <div class="user-role">Administrator</div>
+              </div>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+              <li><a class="dropdown-item" href="settings.html"><i class="fa-solid fa-gear me-2 text-cyan"></i> System Settings</a></li>
+              <li><a class="dropdown-item" href="digital-twin.html"><i class="fa-solid fa-brain me-2 text-purple"></i> Policy Digital Twin</a></li>
+              <li><a class="dropdown-item" href="attack-replay.html"><i class="fa-solid fa-timeline me-2 text-malicious"></i> Attack Replay</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger action-logout" href="#"><i class="fa-solid fa-right-from-bracket me-2"></i> Terminate Session</a></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Body Content -->
+      <main class="page-content">
+        
+        <!-- Page Header Breadcrumbs & Actions -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+          <div>
+            <div class="text-dim font-mono text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.1em;">
+              AegisDNS Advanced AI &bull; Incident Forensics
+            </div>
+            <h1 class="page-title d-flex align-items-center gap-2">
+              <i class="fa-solid fa-timeline text-malicious"></i>
+              Attack Replay &amp; Counterfactual Security Forensics
+              <span class="badge badge-malicious ms-2" style="font-size: 0.72rem; vertical-align: middle;">POST-INCIDENT SIMULATOR</span>
+            </h1>
+            <p class="text-muted mb-0" style="font-size: 0.9rem; max-width: 920px;">
+              Replay recorded historical DNS attack events step-by-step through an interactive kill-chain timeline. Perform counterfactual "what-if" policy testing to measure dwell time reduction, identify missed threats, and verify whether alternative policies could have prevented the breach.
+            </p>
+          </div>
+          
+          <div class="d-flex align-items-center gap-2">
+            <button id="btnQuickExportForensic" class="btn btn-outline-cyan btn-sm">
+              <i class="fa-solid fa-file-export me-1"></i> Export Incident Report
+            </button>
+            <a href="digital-twin.html" class="btn btn-outline-purple btn-sm">
+              <i class="fa-solid fa-sliders me-1"></i> Policy Studio
+            </a>
+          </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Archived Incidents</span>
+                <div class="stat-card-icon icon-malicious">
+                  <i class="fa-solid fa-skull-crossbones"></i>
+                </div>
+              </div>
+              <div id="statArchivedIncidents" class="stat-card-value font-mono">--</div>
+              <div class="stat-card-footer text-muted">
+                <span>APT &bull; Ransomware &bull; Tunneling</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Historical Mean Dwell Time</span>
+                <div class="stat-card-icon icon-suspicious">
+                  <i class="fa-solid fa-stopwatch"></i>
+                </div>
+              </div>
+              <div id="statAvgDwellTime" class="stat-card-value text-suspicious font-mono">-- min</div>
+              <div class="stat-card-footer text-dim">
+                <span>Before late manual containment</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Counterfactual Prevention Rate</span>
+                <div class="stat-card-icon icon-safe">
+                  <i class="fa-solid fa-shield-virus"></i>
+                </div>
+              </div>
+              <div id="statCounterfactualRate" class="stat-card-value text-safe font-mono">--%</div>
+              <div class="stat-card-footer text-safe">
+                <i class="fa-solid fa-check me-1"></i> Severed at Delivery Phase
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 col-lg-3">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-card-title">Mean Containment Gain</span>
+                <div class="stat-card-icon icon-cyan">
+                  <i class="fa-solid fa-forward-fast"></i>
+                </div>
+              </div>
+              <div id="statMeanAcceleration" class="stat-card-value text-cyan font-mono">+-- Steps</div>
+              <div class="stat-card-footer text-cyan">
+                <span>Accelerated kill-chain disruption</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="cyber-tabs-wrapper mb-4">
+          <ul class="nav nav-tabs cyber-nav-tabs" id="forensicsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tab-replay-btn" data-bs-toggle="tab" data-bs-target="#tab-replay" type="button" role="tab">
+                <i class="fa-solid fa-film me-2"></i> Attack Timeline Replay
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-counterfactual-btn" data-bs-toggle="tab" data-bs-target="#tab-counterfactual" type="button" role="tab">
+                <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Counterfactual "What-If" Analysis
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-gaps-btn" data-bs-toggle="tab" data-bs-target="#tab-gaps" type="button" role="tab">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i> Security Blind Spots &amp; Gaps
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-reports-btn" data-bs-toggle="tab" data-bs-target="#tab-reports" type="button" role="tab">
+                <i class="fa-solid fa-file-invoice me-2"></i> Forensic Audit Reports
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Tab Content Panes -->
+        <div class="tab-content" id="forensicsTabContent">
+          
+          <!-- ================================================================
+               TAB 1: ATTACK TIMELINE REPLAY
+               ================================================================ -->
+          <div class="tab-pane fade show active" id="tab-replay" role="tabpanel">
+            <div class="row g-4">
+              <!-- Left Column: Incident Selector -->
+              <div class="col-12 col-xl-4">
+                <div class="cyber-card h-100">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <h2 class="cyber-card-title mb-0">1. Select Security Incident</h2>
+                      <div class="cyber-card-subtitle">Choose recorded attack campaign to inspect and replay</div>
+                    </div>
+                    <span class="badge badge-info">Audited Incidents</span>
+                  </div>
+
+                  <div class="cyber-card-body p-0">
+                    <div id="incidentsContainer" class="d-flex flex-column gap-2 p-3">
+                      <!-- Rendered dynamically via attack-replay.js -->
+                      <div class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-spinner fa-spin me-2"></i> Loading incident archives...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Interactive Timeline Player Workspace -->
+              <div class="col-12 col-xl-8">
+                <div class="cyber-card mb-4">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                      <div class="d-flex align-items-center gap-2">
+                        <h2 class="cyber-card-title mb-0" id="currentIncidentTitle">--</h2>
+                        <span id="currentIncidentCode" class="badge badge-malicious font-mono">--</span>
+                      </div>
+                      <div class="cyber-card-subtitle" id="currentIncidentMeta">Target: -- &bull; Dwell Time: -- min</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <span id="badgeCurrentOutcome" class="badge badge-malicious">BREACH OCCURRED</span>
+                    </div>
+                  </div>
+
+                  <div class="cyber-card-body">
+                    
+                    <!-- Kill-Chain Horizontal Stepper -->
+                    <div class="mb-2">
+                      <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-dim font-mono" style="font-size: 0.75rem;">ATTACK_KILL_CHAIN_PROGRESSION</span>
+                        <span id="labelStepIndicator" class="text-cyan font-mono fw-bold" style="font-size: 0.8rem;">Step 1 of 6</span>
+                      </div>
+                      <div id="killchainStepper" class="killchain-stepper">
+                        <!-- Populated dynamically -->
+                      </div>
+                    </div>
+
+                    <!-- Replay Player Bar Controls -->
+                    <div class="replay-controls-bar mb-4">
+                      <!-- Playback Buttons -->
+                      <div class="d-flex align-items-center gap-2">
+                        <button id="btnPrevStep" class="btn btn-outline-cyan btn-sm" title="Previous Step">
+                          <i class="fa-solid fa-backward-step"></i>
+                        </button>
+                        <button id="btnPlayPause" class="btn btn-cyan btn-sm" style="min-width: 90px;">
+                          <i class="fa-solid fa-play me-1"></i> Play
+                        </button>
+                        <button id="btnNextStep" class="btn btn-outline-cyan btn-sm" title="Next Step">
+                          <i class="fa-solid fa-forward-step"></i>
+                        </button>
+                        <button id="btnResetReplay" class="btn btn-outline-secondary btn-sm" title="Reset to Start">
+                          <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                      </div>
+
+                      <!-- Scrubber Slider -->
+                      <div class="flex-grow-1 mx-3" style="min-width: 140px;">
+                        <input type="range" class="cyber-range" id="replayScrubber" min="1" max="6" value="1" step="1">
+                      </div>
+
+                      <!-- Speed Selector -->
+                      <div class="d-flex align-items-center gap-2 font-mono" style="font-size: 0.78rem;">
+                        <span class="text-dim">Speed:</span>
+                        <div class="btn-group btn-group-sm" role="group" id="replaySpeedGroup">
+                          <button type="button" class="btn btn-outline-cyan active" data-speed="1">1x</button>
+                          <button type="button" class="btn btn-outline-cyan" data-speed="2">2x</button>
+                          <button type="button" class="btn btn-outline-cyan" data-speed="4">4x</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Active Step Deep Telemetry Inspector Card -->
+                    <div id="stepInspectorCard" class="p-3 rounded-2" style="background: rgba(4, 7, 17, 0.9); border: 1px solid var(--border-card);">
+                      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                          <span id="inspectorStepBadge" class="badge badge-info font-mono">STEP 1</span>
+                          <span id="inspectorPhaseBadge" class="badge badge-warning font-mono">RECONNAISSANCE</span>
+                          <span id="inspectorTimestamp" class="text-dim font-mono" style="font-size: 0.8rem;">+00:00s elapsed</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                          <span class="text-dim font-mono" style="font-size: 0.78rem;">Historical System Action:</span>
+                          <span id="inspectorOriginalAction" class="badge badge-safe font-mono">ALLOWED (SAFE)</span>
+                        </div>
+                      </div>
+
+                      <!-- Domain and Query Box -->
+                      <div class="p-3 rounded-2 mb-3 font-mono" style="background: rgba(13, 23, 45, 0.8); border: 1px solid rgba(0, 240, 255, 0.2);">
+                        <div class="row g-2 align-items-center">
+                          <div class="col-12 col-md-8">
+                            <span class="text-dim" style="font-size: 0.75rem;">TARGET DOMAIN:</span>
+                            <div id="inspectorDomain" class="text-white fw-bold fs-5 text-break">--</div>
+                          </div>
+                          <div class="col-6 col-md-2">
+                            <span class="text-dim" style="font-size: 0.75rem;">QUERY TYPE:</span>
+                            <div id="inspectorQueryType" class="text-cyan fw-bold">A</div>
+                          </div>
+                          <div class="col-6 col-md-2">
+                            <span class="text-dim" style="font-size: 0.75rem;">ORIGIN IP:</span>
+                            <div id="inspectorClientIp" class="text-muted">192.168.1.115</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Forensic Details & Historical Real-World Impact -->
+                      <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                          <span class="text-dim font-mono" style="font-size: 0.75rem;">ATTACKER METHODOLOGY &amp; THREAT INTEL:</span>
+                          <p id="inspectorThreatDetails" class="text-muted mt-1 mb-0" style="font-size: 0.83rem;">--</p>
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <span class="text-dim font-mono" style="font-size: 0.75rem;">HISTORICAL REAL-WORLD CONSEQUENCE:</span>
+                          <p id="inspectorHistoricalImpact" class="text-malicious mt-1 mb-0" style="font-size: 0.83rem;">--</p>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <div class="cyber-card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span class="text-dim font-mono" style="font-size: 0.75rem;">
+                      <i class="fa-solid fa-circle-info text-cyan me-1"></i> Replaying historical telemetry logs. Production DNS network is completely untouched.
+                    </span>
+                    <button id="btnSwitchToCounterfactual" class="btn btn-outline-cyan btn-sm">
+                      Run Counterfactual "What-If" <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               TAB 2: COUNTERFACTUAL "WHAT-IF" FORENSICS
+               ================================================================ -->
+          <div class="tab-pane fade" id="tab-counterfactual" role="tabpanel">
+            <div class="cyber-card mb-4">
+              <div class="cyber-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h2 class="cyber-card-title mb-0">Counterfactual Policy Simulator ("What-If" Analysis)</h2>
+                  <div class="cyber-card-subtitle">Evaluate how alternative security policies would have responded to this exact attack kill-chain</div>
+                </div>
+                <span class="badge badge-safe">Zero-Day Policy Validation</span>
+              </div>
+
+              <div class="cyber-card-body">
+                <!-- Selection Bar -->
+                <div class="row g-3 align-items-end mb-4">
+                  <div class="col-12 col-md-5">
+                    <label class="form-label text-muted" for="selectCfIncident">Target Historical Incident</label>
+                    <select id="selectCfIncident" class="form-select cyber-input font-mono">
+                      <!-- Populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-5">
+                    <label class="form-label text-muted" for="selectCfPolicy">Candidate Virtual Policy to Test</label>
+                    <select id="selectCfPolicy" class="form-select cyber-input font-mono">
+                      <!-- Populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-2">
+                    <button id="btnExecuteCounterfactual" class="btn btn-cyan w-100">
+                      <i class="fa-solid fa-bolt me-1"></i> Run Analysis
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Counterfactual Impact KPI Cards -->
+                <div class="row g-3 mb-4">
+                  <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                      <div class="stat-card-title">Dwell Time Reduction</div>
+                      <div id="cfMetricDwellPct" class="stat-card-value font-mono text-safe">--%</div>
+                      <div class="stat-card-footer text-muted" id="cfMetricTimeSaved">-- min saved</div>
+                    </div>
+                  </div>
+
+                  <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                      <div class="stat-card-title">Containment Step Delta</div>
+                      <div id="cfMetricStepDelta" class="stat-card-value font-mono text-cyan">Step -- vs --</div>
+                      <div class="stat-card-footer text-cyan" id="cfMetricStepsAccelerated">+-- Steps earlier</div>
+                    </div>
+                  </div>
+
+                  <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                      <div class="stat-card-title">Damage Prevention Score</div>
+                      <div id="cfMetricDamageScore" class="stat-card-value font-mono text-safe">--%</div>
+                      <div class="stat-card-footer text-safe">Mitigated impact index</div>
+                    </div>
+                  </div>
+
+                  <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                      <div class="stat-card-title">Breach Prevention Verdict</div>
+                      <div id="cfMetricVerdict" class="stat-card-value font-mono fs-4 text-safe">--</div>
+                      <div class="stat-card-footer text-dim">Pre-execution kill confirmed</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Side-by-Side Timeline Comparison Table -->
+                <div class="cyber-card">
+                  <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <h3 class="cyber-card-title mb-0" style="font-size: 0.95rem;">Side-by-Side Kill-Chain Comparative Telemetry</h3>
+                      <div class="cyber-card-subtitle">Historical System Action vs Counterfactual Policy Response at each stage</div>
+                    </div>
+                    <span class="badge badge-info">Chronological Diff</span>
+                  </div>
+
+                  <div class="table-responsive">
+                    <table class="table cyber-table align-middle mb-0" id="cfComparisonTable">
+                      <thead>
+                        <tr>
+                          <th>Step</th>
+                          <th>Timeline</th>
+                          <th>Kill Chain Stage</th>
+                          <th>Queried Domain</th>
+                          <th>Historical Response</th>
+                          <th>Counterfactual Response</th>
+                          <th>Net Security Impact</th>
+                        </tr>
+                      </thead>
+                      <tbody id="cfComparisonTableBody">
+                        <tr>
+                          <td colspan="7" class="text-center py-4 text-muted">Select an incident and policy variant, then click "Run Analysis".</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               TAB 3: SECURITY BLIND SPOTS & GAPS
+               ================================================================ -->
+          <div class="tab-pane fade" id="tab-gaps" role="tabpanel">
+            <div class="cyber-card mb-4">
+              <div class="cyber-card-header d-flex justify-content-between align-items-center">
+                <div>
+                  <h2 class="cyber-card-title mb-0 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                    Root-Cause Security Blind Spot Analysis
+                  </h2>
+                  <div class="cyber-card-subtitle">Examines architectural reasons why the historical system allowed malicious queries</div>
+                </div>
+                <span class="badge badge-warning">Forensic Diagnostics</span>
+              </div>
+
+              <div class="cyber-card-body">
+                <div id="forensicGapsContainer">
+                  <div class="text-center py-4 text-muted">Run a counterfactual analysis to generate root-cause blind spot diagnostics.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               TAB 4: FORENSIC AUDIT REPORTS
+               ================================================================ -->
+          <div class="tab-pane fade" id="tab-reports" role="tabpanel">
+            <div class="cyber-card">
+              <div class="cyber-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <h2 class="cyber-card-title mb-0">Archived Forensic Security Reports</h2>
+                  <div class="cyber-card-subtitle">Audited records of counterfactual simulations with compliance export capabilities</div>
+                </div>
+                <button id="btnRefreshAnalyses" class="btn btn-outline-cyan btn-sm">
+                  <i class="fa-solid fa-rotate me-1"></i> Refresh
+                </button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table cyber-table align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Analysis UUID</th>
+                      <th>Incident Target</th>
+                      <th>Evaluated Policy</th>
+                      <th>Containment Gain</th>
+                      <th>Time Saved</th>
+                      <th>Dwell Time Reduction</th>
+                      <th>Verdict</th>
+                      <th>Timestamp</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="analysesHistoryTableBody">
+                    <tr>
+                      <td colspan="9" class="text-center py-4 text-muted">Loading analysis history...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/mock-data.js"></script>
+  <script src="js/api-service.js"></script>
+  <script src="js/cyber-ui.js"></script>
+  <script src="js/attack-replay.js"></script>
+</body>
+</html>
+

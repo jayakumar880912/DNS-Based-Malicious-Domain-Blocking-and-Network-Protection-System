@@ -861,6 +861,192 @@ const CyberApiService = (() => {
         headers: getAuthHeaders()
       });
       return await res.json();
+    },
+
+    // ==========================================================================
+    // Attack Replay & Counterfactual Security Forensics Endpoints
+    // ==========================================================================
+
+    /**
+     * Get all Recorded Security Incidents
+     * Endpoint: GET /api/forensics/incidents
+     */
+    async getSecurityIncidents() {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(250);
+        const incidents = mock.forensics?.incidents || [];
+        return { success: true, incidents: incidents, count: incidents.length };
+      }
+      try {
+        const res = await fetch(`${CONFIG.BASE_URL}/forensics/incidents`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        console.warn('Backend forensics endpoint unavailable, using mock incidents:', err);
+        const incidents = mock.forensics?.incidents || [];
+        return { success: true, incidents: incidents, count: incidents.length };
+      }
+    },
+
+    /**
+     * Get Incident Details with timeline events
+     * Endpoint: GET /api/forensics/incidents/<id>
+     */
+    async getSecurityIncidentDetails(incidentId) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(250);
+        const incidents = mock.forensics?.incidents || [];
+        const inc = incidents.find(i => i.id === incidentId) || incidents[0];
+        return { success: true, incident: inc };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/forensics/incidents/${incidentId}`, {
+        headers: getAuthHeaders()
+      });
+      return await res.json();
+    },
+
+    /**
+     * Replay Security Incident
+     * Endpoint: POST /api/forensics/replay
+     */
+    async replaySecurityIncident(incidentId) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(300);
+        const incidents = mock.forensics?.incidents || [];
+        const inc = incidents.find(i => i.id === incidentId) || incidents[0];
+        return {
+          success: true,
+          message: `Incident '${inc.title}' staged for playback.`,
+          incident: inc,
+          totalSteps: inc.timelineEvents ? inc.timelineEvents.length : 6
+        };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/forensics/replay`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ incidentId })
+      });
+      return await res.json();
+    },
+
+    /**
+     * Run Counterfactual Analysis
+     * Endpoint: POST /api/forensics/counterfactual
+     */
+    async runCounterfactualAnalysis(incidentId, policyId) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(850);
+        const incidents = mock.forensics?.incidents || [];
+        const inc = incidents.find(i => i.id === incidentId) || incidents[0];
+        const policies = mock.digitalTwin?.virtualPolicies || [];
+        const pol = policies.find(p => p.id === policyId) || { name: 'Candidate Strict Filter' };
+
+        // Synthetic counterfactual evaluation
+        const steps = (inc.timelineEvents || []).map(ev => {
+          let cfAction = ev.originalAction;
+          let cfVerdict = ev.originalVerdict;
+          let status = 'BENIGN_TRAFFIC';
+
+          if (ev.groundTruth in ['MALICIOUS', 'SUSPICIOUS']) {
+            // Under strict policy, Step 2 is blocked early!
+            if (ev.step >= 2) {
+              cfAction = 'BLOCKED';
+              cfVerdict = 'MALICIOUS';
+            }
+            if (ev.originalAction === 'ALLOWED' && cfAction === 'BLOCKED') {
+              status = 'PREVENTED_BY_POLICY';
+            } else if (ev.originalAction === 'BLOCKED') {
+              status = 'REDUNDANT_BLOCKED';
+            }
+          }
+
+          return {
+            step: ev.step,
+            offsetSec: ev.offsetSec,
+            domain: ev.domain,
+            queryType: ev.queryType,
+            clientIp: ev.clientIp,
+            groundTruth: ev.groundTruth,
+            killChainPhase: ev.killChainPhase,
+            threatDetails: ev.threatDetails,
+            original: { action: ev.originalAction, verdict: ev.originalVerdict, impact: ev.historicalImpact },
+            counterfactual: { action: cfAction, verdict: cfVerdict, triggerRules: ['Shannon Entropy > 3.75', 'Restricted TLD Rule'], reason: 'Intercepted and sinkholed' },
+            stepStatus: status
+          };
+        });
+
+        return {
+          success: true,
+          analysisId: Date.now(),
+          analysisUuid: `CFA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+          incident: inc,
+          policy: pol,
+          metrics: {
+            originalContainmentStep: 6,
+            counterfactualContainmentStep: 2,
+            stepsAccelerated: 4,
+            timeSavedMinutes: 45.0,
+            dwellTimeReductionPct: 93.8,
+            breachPrevented: true,
+            verdict: 'BREACH_FULLY_PREVENTED',
+            damageMitigationScore: 100.0
+          },
+          stepComparisons: steps,
+          recommendations: [
+            {
+              id: 'REC-EARLY-CONTAIN',
+              severity: 'CRITICAL_FIX',
+              title: 'Pre-Execution Kill-Chain Severance Confirmed',
+              finding: `Under policy '${pol.name}', the attack was severed at Step 2 (Weaponized Delivery), eliminating 100% of data loss.`,
+              actionableStep: 'Promote this candidate virtual policy to live protection.',
+              impact: '-45.0 min dwell time (100% breach avoided)'
+            }
+          ]
+        };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/forensics/counterfactual`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ incidentId, policyId })
+      });
+      return await res.json();
+    },
+
+    /**
+     * Get Counterfactual Analyses History
+     * Endpoint: GET /api/forensics/analyses
+     */
+    async getCounterfactualAnalyses(limit = 20) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(200);
+        return { success: true, analyses: [], count: 0 };
+      }
+      try {
+        const res = await fetch(`${CONFIG.BASE_URL}/forensics/analyses?limit=${limit}`, {
+          headers: getAuthHeaders()
+        });
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        return { success: true, analyses: [], count: 0 };
+      }
+    },
+
+    /**
+     * Export Forensic Incident Report
+     * Endpoint: GET /api/forensics/analyses/<id>/export
+     */
+    async exportForensicReport(analysisId) {
+      if (CONFIG.USE_MOCK) {
+        await simulateLatency(250);
+        return { success: true, report: { reportTitle: 'Demo Forensic Audit Report', analysisId } };
+      }
+      const res = await fetch(`${CONFIG.BASE_URL}/forensics/analyses/${analysisId}/export`, {
+        headers: getAuthHeaders()
+      });
+      return await res.json();
     }
   };
 })();
